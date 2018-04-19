@@ -7,12 +7,10 @@
 
 // Include glut, opengl libraries and custom classes
 #include "Includes.h"
-//#include "mandelbrot.h"
 #include "Mandelbrot2.h"
 
 // Required variables; pointer to scene and input objects. Initialise variable used in delta time calculation.
 Mandelbrot2* mandelbrot2_;
-//mandelbrot* mandelbrot_;
 //Scene* scene;
 Input* input;
 int oldTimeSinceStart = 0;
@@ -22,8 +20,6 @@ int oldTimeSinceStart = 0;
 // scene object to refresh the OpenGL buffers to the new dimensions.
 void changeSize(int w, int h)
 {
-	//scene->resize(w, h);
-	//mandelbrot_->resize(w, h);
 	mandelbrot2_->resize(w, h);
 }
 
@@ -38,14 +34,7 @@ void renderScene(void)
 	oldTimeSinceStart = timeSinceStart;
 	deltaTime = deltaTime / 100.0f;
 
-	// Update Scene and render next frame.
-	//scene->update(deltaTime);
-	//scene->render();
-
 	// Update mandelbrot and render next frame.
-	//mandelbrot_->update(deltaTime);
-	//mandelbrot_->render();
-
 	mandelbrot2_->update(deltaTime);
 	mandelbrot2_->render();
 }
@@ -175,9 +164,6 @@ int main(int argc, char **argv)
 
 	// Initialise input and scene objects.
 	input = new Input();
-	//scene = new Scene(input);
-	//mandelbrot_ = new mandelbrot(input);
-	//mandelbrot_->query_AMP_support();
 
 	mandelbrot2_ = new Mandelbrot2(input);
 	mandelbrot2_->query_AMP_support();

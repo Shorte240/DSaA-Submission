@@ -102,7 +102,10 @@ void Mandelbrot2::update(float dt)
 	}
 	if (input->isKeyDown('t'))
 	{
-		zoom_ += 0.1f;
+		if (zoom_ <= 1.0f)
+		{
+			zoom_ += 0.1f;
+		}
 		recalculate = true;
 		input->SetKeyUp('t');
 	}
@@ -110,7 +113,7 @@ void Mandelbrot2::update(float dt)
 	if (recalculate)
 	{
 		compute_mandelbrot_amp((-2.0f + left_)*zoom_, (1.0f + right_)*zoom_, (1.125f + top_)*zoom_, (-1.125f + bottom_)*zoom_);
-		//compute_mandelbrot_amp(-0.751085f, -0.734975f, 0.118378f, 0.134488f);
+		//compute_mandelbrot_amp((-0.751085f + left_)*zoom_, (-0.734975f + right_)*zoom_, (0.118378f + top_)*zoom_, (0.134488f + bottom_)*zoom_);
 		recalculate = false;
 	}
 
