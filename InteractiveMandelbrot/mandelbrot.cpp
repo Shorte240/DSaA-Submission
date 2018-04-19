@@ -261,9 +261,9 @@ void mandelbrot::compute_mandelbrot_amp(float left_, float right_, float top_, f
 			// Iterate z = z^2 + c until z moves more than 2 units
 			// away from (0, 0), or we've iterated too many times.
 			int iterations = 0;
-			while (c_abs(z) < 2.0 && iterations < max_iter)
+			while (c_abs(z) < 4.0 && iterations < max_iter)
 			{
-				z = c_add(c_mul(z, z), c);
+				z = c_add(c_mul(z, z), c); //c_mul(z, z)
 
 				++iterations;
 			}

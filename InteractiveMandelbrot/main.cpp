@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GLUT_STENCIL);
 	//glutInitWindowPosition(100, 100);
 	glutInitWindowSize(800, 600);
-	glutCreateWindow("My first triangle");
+	glutCreateWindow("Interactive Mandelbrot");
 
 	// Register callback functions for change in size and rendering.
 	glutDisplayFunc(renderScene);
@@ -175,8 +175,6 @@ int main(int argc, char **argv)
 	//scene = new Scene(input);
 	mandelbrot_ = new mandelbrot(input);
 	mandelbrot_->query_AMP_support();
-	mandelbrot_->compute_mandelbrot_amp(-2.0f, 1.0f, 1.125f, -1.125f);
-	//mandelbrot_->compute_mandelbrot_amp(-0.751085f, -0.734975f, 0.118378f, 0.134488f);
 
 	// Enter GLUT event processing cycle
 	glutMainLoop();
