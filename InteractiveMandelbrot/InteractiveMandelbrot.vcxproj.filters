@@ -42,7 +42,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="complex_amp.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quad.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

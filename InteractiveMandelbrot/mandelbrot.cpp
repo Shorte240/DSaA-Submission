@@ -1,5 +1,6 @@
 #include "mandelbrot.h"
 #include "complex_amp.h"
+#include "quad.h"
 
 mandelbrot::mandelbrot(Input *in)
 {
@@ -14,6 +15,13 @@ mandelbrot::mandelbrot(Input *in)
 	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
+	glEnable(GL_TEXTURE_2D);
+	pixel_amp_mandelbrot_.reserve(SIZE * 3);
+	r_ = 250;
+	g_ = 68;
+	b_ = 32;
+
+	MAX_ITERATIONS = 500;
 
 	// Other OpenGL / render setting should be applied here.
 
@@ -41,7 +49,7 @@ void mandelbrot::render()
 
 //***Polygon***\\
 
-	glBegin(GL_POLYGON);
+	/*glBegin(GL_POLYGON);
 
 	glColor3f(0.5f, 0.0f, 0.0f);
 	glVertex3f(0.0f, 0.0f, 0.0f);
@@ -61,7 +69,41 @@ void mandelbrot::render()
 	glColor3f(0.0f, 0.0f, 1.0f);
 	glVertex3f(-0.5f, 1.0f, 0.0f);
 
-	glEnd();
+	glEnd();*/
+
+	glPushMatrix(); {
+		// render Mandelbrot
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+		glVertexPointer(3, GL_FLOAT, 0, quad_t_verts.data());
+		glTexCoordPointer(2, GL_FLOAT, 0, quad_t_texcoords.data());
+
+		glGenTextures(1, &amp_mandelbrot_texture_);
+		glBindTexture(GL_TEXTURE_2D, amp_mandelbrot_texture_);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, WIDTH, HEIGHT,
+			0, GL_BGR_EXT, GL_UNSIGNED_BYTE, pixel_amp_mandelbrot_.data()); // <----- had to use GL_BGR_EXT
+
+																			//glColor4f(_rgba.getR(), _rgba.getG(), _rgba.getB(), _rgba.getA());
+		glDrawArrays(GL_TRIANGLES, 0, quad_t_verts.size() / 3);
+		//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glBindTexture(GL_TEXTURE_2D, NULL);
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	} glPopMatrix();
+
+	/*GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image_amp_mandelbrot_);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);*/
 
 
 	// End render geometry --------------------------------------
@@ -89,6 +131,8 @@ void mandelbrot::update(float dt)
 		input->SetKeyUp('t');
 	}
 	// update scene related variables.
+	compute_mandelbrot_amp(-2.0f, 1.0f, 1.125f, -1.125f);
+	//compute_mandelbrot_amp(-0.751085f, -0.734975f, 0.118378f, 0.134488f, image); // Zoomed
 
 	// Calculate FPS for output
 	calculateFPS();
@@ -169,56 +213,78 @@ void mandelbrot::query_AMP_support()
 	}
 } // query_AMP_support
 
-void mandelbrot::compute_mandelbrot_amp(float left_, float right_, float top_, float bottom_, std::vector<std::vector<uint32_t>>& image_)
+void mandelbrot::compute_mandelbrot_amp(float left_, float right_, float top_, float bottom_)
 {
-	for (int y = 0; y < HEIGHT; y++)
+	unsigned max_iter = MAX_ITERATIONS;
+	unsigned r = r_;
+	unsigned g = g_;
+	unsigned b = b_;
+
+	image_amp_mandelbrot_.empty();
+	
+	extent<2> e(WIDTH, HEIGHT);
+	array_view<uint32_t, 2> array_view(e, image_amp_mandelbrot_);
+	array_view.discard_data();
+
+	try
 	{
-		concurrency::extent<2> e(WIDTH, 1);
-		concurrency::array_view<uint32_t, 2> smol_brot(e, image_.at(y));
-		smol_brot.discard_data();
+		parallel_for_each(array_view.extent.tile<TiS, TiS>(),[=](tiled_index<TiS, TiS> t_idx)mutable restrict(amp) {
+			index<2> idx = t_idx.global;
 
-		try
-		{
-			parallel_for_each(smol_brot.extent, [=](concurrency::index<2> idx) restrict(amp) {
-				int x = idx[0];
+			// Work out the point in the complex plane that
+			// corresponds to this pixel in the output image.
+			Complex1 c = { left_ + (idx[0] * (right_ - left_) / WIDTH), top_ + (idx[1] * (bottom_ - top_) / HEIGHT) };
 
-				// Work out the point in the complex plane that
-				// corresponds to this pixel in the output image.
-				Complex1 c = { left_ + (x * (right_ - left_) / WIDTH), top_ + (y * (bottom_ - top_) / HEIGHT) };
+			// Start off z at (0, 0).
+			Complex1 z = { 0.0f, 0.0f };
 
-				// Start off z at (0, 0).
-				Complex1 z = { 0.0f, 0.0f };
+			// Iterate z = z^2 + c until z moves more than 2 units
+			// away from (0, 0), or we've iterated too many times.
+			int iterations = 0;
+			while (c_abs(z) < 2.0 && iterations < max_iter)
+			{
+				z = c_add(c_mul(z, z), c);
 
-				// Iterate z = z^2 + c until z moves more than 2 units
-				// away from (0, 0), or we've iterated too many times.
-				int iterations = 0;
-				while (c_abs(z) < 2.0 && iterations < MAX_ITERATIONS)
-				{
-					z = c_add(c_mul(z, z), c);
+				++iterations;
+			}
 
-					++iterations;
-				}
-
-				if (iterations == MAX_ITERATIONS)
-				{
-					// z didn't escape from the circle.
-					// This point is in the Mandelbrot set.
-					smol_brot[1][x] = 0x000000; // black
-				}
-				else
-				{
-					// z escaped within less than MAX_ITERATIONS
-					// iterations. This point isn't in the set.
-					smol_brot[1][x] = (iterations << 16) | (iterations << 8) | iterations;
-				}
-
-			});
-		}
-		catch (const std::exception& ex)
-		{
-			MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
-		}
+			if (iterations == max_iter)
+			{
+				// z didn't escape from the circle.
+				// This point is in the Mandelbrot set.
+				//array_view[1][x] = 0x000000; // black
+			}
+			else
+			{
+				// z escaped within less than MAX_ITERATIONS
+				// iterations. This point isn't in the set.
+				r = iterations * iterations * r;
+				g = iterations * iterations * g;
+				b = iterations * iterations * b;
+			}
+			array_view[idx] = (r << 16) | (g << 8) | (b);
+		});
+		array_view.synchronize();
 	}
+	catch (const std::exception& ex)
+	{
+		MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
+	}
+	// calculate pixel image
+	auto pixel_image = std::async(std::launch::async, [&]()
+	{
+		pixel_amp_mandelbrot_.clear();
+		// generating pixel vector with mandelbrot image 
+		for (int y = 0; y < HEIGHT; ++y)
+		{
+			for (int x = 0; x < WIDTH; ++x)
+			{
+				pixel_amp_mandelbrot_.push_back((image_amp_mandelbrot_[x * HEIGHT + y]) & 0xFF); // blue channel
+				pixel_amp_mandelbrot_.push_back((image_amp_mandelbrot_[x * HEIGHT + y] >> 8) & 0xFF); // green channel
+				pixel_amp_mandelbrot_.push_back((image_amp_mandelbrot_[x * HEIGHT + y] >> 16) & 0xFF); // red channel
+			}
+		}
+	});
 }
 
 void mandelbrot::displayText(float x, float y, float r, float g, float b, char * string)

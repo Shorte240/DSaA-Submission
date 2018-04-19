@@ -40,6 +40,9 @@ void renderScene(void)
 	//scene->render();
 
 	// Update mandelbrot and render next frame.
+	//compute_mandelbrot_amp(-0.751085f, -0.734975f, 0.118378f, 0.134488f, image); // Zoomed
+	//compute_mandelbrot_amp(-2.0f, 1.0f, 1.125f, -1.125f, image); // Full
+	
 	mandelbrot_->update(deltaTime);
 	mandelbrot_->render();
 }
