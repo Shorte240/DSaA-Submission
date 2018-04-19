@@ -6,14 +6,12 @@
 
 
 // Include glut, opengl libraries and custom classes
-#include "glut.h"
-#include <gl/GL.h>
-#include <gl/GLU.h>
-#include "Scene.h"
-#include "Input.h"
+#include "Includes.h"
+#include "mandelbrot.h"
 
 // Required variables; pointer to scene and input objects. Initialise variable used in delta time calculation.
-Scene* scene;
+mandelbrot* mandelbrot_;
+//Scene* scene;
 Input* input;
 int oldTimeSinceStart = 0;
 
@@ -22,7 +20,8 @@ int oldTimeSinceStart = 0;
 // scene object to refresh the OpenGL buffers to the new dimensions.
 void changeSize(int w, int h)
 {
-	scene->resize(w, h);
+	//scene->resize(w, h);
+	mandelbrot_->resize(w, h);
 }
 
 // Called as part of the GLUT main loop.
@@ -37,8 +36,12 @@ void renderScene(void)
 	deltaTime = deltaTime / 100.0f;
 
 	// Update Scene and render next frame.
-	scene->update(deltaTime);
-	scene->render();
+	//scene->update(deltaTime);
+	//scene->render();
+
+	// Update mandelbrot and render next frame.
+	mandelbrot_->update(deltaTime);
+	mandelbrot_->render();
 }
 
 // Handles keyboard input events from GLUT.
@@ -166,7 +169,8 @@ int main(int argc, char **argv)
 
 	// Initialise input and scene objects.
 	input = new Input();
-	scene = new Scene(input);
+	//scene = new Scene(input);
+	mandelbrot_ = new mandelbrot(input);
 
 	// Enter GLUT event processing cycle
 	glutMainLoop();
