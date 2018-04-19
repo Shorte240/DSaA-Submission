@@ -7,10 +7,12 @@
 
 // Include glut, opengl libraries and custom classes
 #include "Includes.h"
-#include "mandelbrot.h"
+//#include "mandelbrot.h"
+#include "Mandelbrot2.h"
 
 // Required variables; pointer to scene and input objects. Initialise variable used in delta time calculation.
-mandelbrot* mandelbrot_;
+Mandelbrot2* mandelbrot2_;
+//mandelbrot* mandelbrot_;
 //Scene* scene;
 Input* input;
 int oldTimeSinceStart = 0;
@@ -21,7 +23,8 @@ int oldTimeSinceStart = 0;
 void changeSize(int w, int h)
 {
 	//scene->resize(w, h);
-	mandelbrot_->resize(w, h);
+	//mandelbrot_->resize(w, h);
+	mandelbrot2_->resize(w, h);
 }
 
 // Called as part of the GLUT main loop.
@@ -40,11 +43,11 @@ void renderScene(void)
 	//scene->render();
 
 	// Update mandelbrot and render next frame.
-	//compute_mandelbrot_amp(-0.751085f, -0.734975f, 0.118378f, 0.134488f, image); // Zoomed
-	//compute_mandelbrot_amp(-2.0f, 1.0f, 1.125f, -1.125f, image); // Full
-	
-	mandelbrot_->update(deltaTime);
-	mandelbrot_->render();
+	//mandelbrot_->update(deltaTime);
+	//mandelbrot_->render();
+
+	mandelbrot2_->update(deltaTime);
+	mandelbrot2_->render();
 }
 
 // Handles keyboard input events from GLUT.
@@ -173,8 +176,11 @@ int main(int argc, char **argv)
 	// Initialise input and scene objects.
 	input = new Input();
 	//scene = new Scene(input);
-	mandelbrot_ = new mandelbrot(input);
-	mandelbrot_->query_AMP_support();
+	//mandelbrot_ = new mandelbrot(input);
+	//mandelbrot_->query_AMP_support();
+
+	mandelbrot2_ = new Mandelbrot2(input);
+	mandelbrot2_->query_AMP_support();
 
 	// Enter GLUT event processing cycle
 	glutMainLoop();

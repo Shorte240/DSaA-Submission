@@ -11,15 +11,10 @@
 
 #define SIZE (HEIGHT * WIDTH) // same as 1<<29  == 2^20 // Sizes: 65536, 73728. Anything less than 80k
 
-// The number of times to iterate before we assume that a point isn't in the
-// Mandelbrot set.
-// (You may need to turn this up if you zoom further into the set.)
-
-
-class mandelbrot
+class Mandelbrot2
 {
 public:
-	mandelbrot(Input *in);
+	Mandelbrot2(Input *in);
 	// Main render function
 	void render();
 	// Update function receives delta time from parent (used for frame independent updating).
@@ -46,11 +41,11 @@ protected:
 	void calculateFPS();
 
 	// draw primitive functions
-	GLenum amp_mandelbrot_texture_;
-	std::array<uint32_t, SIZE> image_amp_mandelbrot_;
-	std::vector<uint8_t> pixel_amp_mandelbrot_;
-	unsigned b_, g_, r_;           // blue, green and red colours
+	uint32_t image[HEIGHT][WIDTH];
 
+	// The number of times to iterate before we assume that a point isn't in the
+	// Mandelbrot set.
+	// (You may need to turn this up if you zoom further into the set.)
 	unsigned long MAX_ITERATIONS;
 
 	bool recalculate;

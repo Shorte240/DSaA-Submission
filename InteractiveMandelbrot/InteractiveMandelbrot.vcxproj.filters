@@ -24,7 +24,7 @@
     <ClCompile Include="Vector3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mandelbrot.cpp">
+    <ClCompile Include="Mandelbrot2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,16 +35,13 @@
     <ClInclude Include="Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mandelbrot.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="complex_amp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="quad.h">
+    <ClInclude Include="Mandelbrot2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

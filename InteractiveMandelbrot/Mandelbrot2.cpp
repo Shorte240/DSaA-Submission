@@ -1,8 +1,7 @@
-#include "mandelbrot.h"
+#include "Mandelbrot2.h"
 #include "complex_amp.h"
-#include "quad.h"
 
-mandelbrot::mandelbrot(Input *in)
+Mandelbrot2::Mandelbrot2(Input *in)
 {
 	// Store pointer for input class
 	input = in;
@@ -16,25 +15,17 @@ mandelbrot::mandelbrot(Input *in)
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 	glEnable(GL_TEXTURE_2D);
-	pixel_amp_mandelbrot_.reserve(SIZE * 3);
-	r_ = 250;
-	g_ = 68;
-	b_ = 32;
-
+	// Other OpenGL / render setting should be applied here.
 	MAX_ITERATIONS = 500; // 500 - starter, 10000 - beautiful
-
 	recalculate = true;
 
 	left_ = right_ = top_ = bottom_ = 0;
 	zoom_ = 1.0f;
 
-	// Other OpenGL / render setting should be applied here.
-
-
 	// Initialise variables
 }
 
-void mandelbrot::render()
+void Mandelbrot2::render()
 {
 	// Clear Color and Depth Buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -44,42 +35,26 @@ void mandelbrot::render()
 	// Set the camera
 	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-	glPushMatrix(); {
-		glScalef(2.5f,2.48f,1.f);
-		// render Mandelbrot
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-		glVertexPointer(3, GL_FLOAT, 0, quad_t_verts.data());
-		glTexCoordPointer(2, GL_FLOAT, 0, quad_t_texcoords.data());
-
-		glGenTextures(1, &amp_mandelbrot_texture_);
-		glBindTexture(GL_TEXTURE_2D, amp_mandelbrot_texture_);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, WIDTH, HEIGHT,
-			0, GL_BGR_EXT, GL_UNSIGNED_BYTE, pixel_amp_mandelbrot_.data()); // <----- had to use GL_BGR_EXT
-
-																			//glColor4f(_rgba.getR(), _rgba.getG(), _rgba.getB(), _rgba.getA());
-		glDrawArrays(GL_TRIANGLES, 0, quad_t_verts.size() / 3);
-		//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		glBindTexture(GL_TEXTURE_2D, NULL);
-
-		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	} glPopMatrix();
-
-	/*GLuint texture;
+	// Render geometry/scene here -------------------------------------
+	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image_amp_mandelbrot_);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);*/
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	glScalef(2.5f,2.48f,0.0f);
 
+	glBegin(GL_QUADS);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 0.0f); // bottom right
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(1.0f, 1.0f, 0.0f); // top right
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(-1.0f, 1.0f, 0.0f); // top left
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, 0.0f); // bottom left
+	glEnd();
 	// End render geometry --------------------------------------
 
 	// Render text, should be last object rendered.
@@ -89,14 +64,10 @@ void mandelbrot::render()
 	glutSwapBuffers();
 }
 
-void mandelbrot::update(float dt)
+void Mandelbrot2::update(float dt)
 {
-	bool Wireframe;
-	// Handle user input
 	if (input->isKeyDown('a'))
 	{
-		//Wireframe = true;
-		//glPolygonMode(GL_FRONT, GL_LINE);
 		left_ -= 0.1f;
 		right_ -= 0.1f;
 		recalculate = true;
@@ -104,7 +75,6 @@ void mandelbrot::update(float dt)
 	}
 	if (input->isKeyDown('d'))
 	{
-		//glPolygonMode(GL_FRONT, GL_FILL);
 		left_ += 0.1f;
 		right_ += 0.1f;
 		recalculate = true;
@@ -112,8 +82,6 @@ void mandelbrot::update(float dt)
 	}
 	if (input->isKeyDown('w'))
 	{
-		//Wireframe = true;
-		//glPolygonMode(GL_FRONT, GL_LINE);
 		top_ += 0.1f;
 		bottom_ += 0.1f;
 		recalculate = true;
@@ -121,7 +89,6 @@ void mandelbrot::update(float dt)
 	}
 	if (input->isKeyDown('s'))
 	{
-		//glPolygonMode(GL_FRONT, GL_FILL);
 		top_ -= 0.1f;
 		bottom_ -= 0.1f;
 		recalculate = true;
@@ -129,15 +96,12 @@ void mandelbrot::update(float dt)
 	}
 	if (input->isKeyDown('r'))
 	{
-		//Wireframe = true;
-		//glPolygonMode(GL_FRONT, GL_LINE);
 		zoom_ -= 0.1f;
 		recalculate = true;
 		input->SetKeyUp('r');
 	}
 	if (input->isKeyDown('t'))
 	{
-		//glPolygonMode(GL_FRONT, GL_FILL);
 		zoom_ += 0.1f;
 		recalculate = true;
 		input->SetKeyUp('t');
@@ -154,7 +118,7 @@ void mandelbrot::update(float dt)
 	calculateFPS();
 }
 
-void mandelbrot::resize(int w, int h)
+void Mandelbrot2::resize(int w, int h)
 {
 	width = w;
 	height = h;
@@ -184,7 +148,7 @@ void mandelbrot::resize(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void mandelbrot::report_accelerator(const accelerator a)
+void Mandelbrot2::report_accelerator(const accelerator a)
 {
 	const std::wstring bs[2] = { L"false", L"true" };
 	std::wcout << ": " << a.description << " "
@@ -198,7 +162,7 @@ void mandelbrot::report_accelerator(const accelerator a)
 		<< endl;
 }
 // List and select the accelerator to use
-void mandelbrot::list_accelerators()
+void Mandelbrot2::list_accelerators()
 {
 	//get all accelerators available to us and store in a vector so we can extract details
 	std::vector<accelerator> accls = accelerator::get_all();
@@ -219,7 +183,7 @@ void mandelbrot::list_accelerators()
 	std::wcout << " default acc = " << acc.description << endl;
 } // list_accelerators
   // query if AMP accelerator exists on hardware
-void mandelbrot::query_AMP_support()
+void Mandelbrot2::query_AMP_support()
 {
 	std::vector<accelerator> accls = accelerator::get_all();
 	if (accls.empty())
@@ -233,37 +197,35 @@ void mandelbrot::query_AMP_support()
 	}
 } // query_AMP_support
 
-void mandelbrot::compute_mandelbrot_amp(float left_, float right_, float top_, float bottom_)
+void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, float bottom_)
 {
 	unsigned max_iter = MAX_ITERATIONS;
-	unsigned r = r_;
-	unsigned g = g_;
-	unsigned b = b_;
+	uint32_t *pImage = &(image[0][0]);
 
-	image_amp_mandelbrot_.empty();
-	
-	extent<2> e(WIDTH, HEIGHT);
-	array_view<uint32_t, 2> array_view(e, image_amp_mandelbrot_);
-	array_view.discard_data();
+	array_view<uint32_t, 2> a(HEIGHT, WIDTH, pImage);
+	a.discard_data();
 
 	try
 	{
-		parallel_for_each(array_view.extent.tile<TiS, TiS>(),[=](tiled_index<TiS, TiS> t_idx)mutable restrict(amp) {
-			index<2> idx = t_idx.global;
+		parallel_for_each(a.extent, [=](concurrency::index<2> idx) restrict(amp)
+		{
+			//USE THREAD ID/INDEX TO MAP INTO THE COMPLEX PLANE
+			int x = idx[1];
+			int y = idx[0];
 
 			// Work out the point in the complex plane that
 			// corresponds to this pixel in the output image.
-			Complex1 c = { left_ + (idx[0] * (right_ - left_) / WIDTH), top_ + (idx[1] * (bottom_ - top_) / HEIGHT) };
+			Complex1 c = { left_ + (x * (right_ - left_) / WIDTH), top_ + (y * (bottom_ - top_) / HEIGHT) };
 
 			// Start off z at (0, 0).
-			Complex1 z = { 0.0f, 0.0f };
+			Complex1 z = { 0.0, 0.0 };
 
 			// Iterate z = z^2 + c until z moves more than 2 units
 			// away from (0, 0), or we've iterated too many times.
 			int iterations = 0;
-			while (c_abs(z) < 4.0 && iterations < max_iter)
+			while (c_abs(z) < 2.0 && iterations < max_iter)
 			{
-				z = c_add(c_mul(z, z), c); //c_mul(z, z)
+				z = c_add(c_mul(z, z), c);
 
 				++iterations;
 			}
@@ -272,53 +234,25 @@ void mandelbrot::compute_mandelbrot_amp(float left_, float right_, float top_, f
 			{
 				// z didn't escape from the circle.
 				// This point is in the Mandelbrot set.
-				//array_view[1][x] = 0x000000; // black
-				r = 0;
-				g = 0;
-				b = 0;
+				a[y][x] = 0x000000; // black
 			}
 			else
 			{
 				// z escaped within less than MAX_ITERATIONS
 				// iterations. This point isn't in the set.
-				r = iterations * iterations * r;
-				g = iterations * iterations * g;
-				b = iterations * iterations * b;
-
-				//r = (r * iterations * iterations << 16);
-				//g = (g * iterations * iterations << 8); //***REALLY COOL***
-				//b = (b * iterations * iterations);
-
-				/*r = (iterations << 16);
-				g = (iterations << 8);
-				b = (iterations);*/
+				//a[y][x] = 0xFFFFFF; // white
+				a[y][x] = (iterations << 16) | (iterations << 8) | iterations; // grayscale
 			}
-			array_view[idx] = (r << 16) | (g << 8) | (b);
 		});
-		array_view.synchronize();
+		a.synchronize();
 	}
 	catch (const std::exception& ex)
 	{
 		MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
 	}
-	// calculate pixel image
-	auto pixel_image = std::async(std::launch::async, [&]()
-	{
-		pixel_amp_mandelbrot_.clear();
-		// generating pixel vector with mandelbrot image 
-		for (int y = 0; y < HEIGHT; ++y)
-		{
-			for (int x = 0; x < WIDTH; ++x)
-			{
-				pixel_amp_mandelbrot_.push_back((image_amp_mandelbrot_[x * HEIGHT + y]) & 0xFF); // blue channel
-				pixel_amp_mandelbrot_.push_back((image_amp_mandelbrot_[x * HEIGHT + y] >> 8) & 0xFF); // green channel
-				pixel_amp_mandelbrot_.push_back((image_amp_mandelbrot_[x * HEIGHT + y] >> 16) & 0xFF); // red channel
-			}
-		}
-	});
 }
 
-void mandelbrot::displayText(float x, float y, float r, float g, float b, char * string)
+void Mandelbrot2::displayText(float x, float y, float r, float g, float b, char * string)
 {
 	// Get Lenth of string
 	int j = strlen(string);
@@ -349,7 +283,7 @@ void mandelbrot::displayText(float x, float y, float r, float g, float b, char *
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void mandelbrot::renderTextOutput()
+void Mandelbrot2::renderTextOutput()
 {
 	// Render current mouse position and frames per second.
 	sprintf_s(mouseText, "Mouse: %i, %i", input->getMouseX(), input->getMouseY());
@@ -357,7 +291,7 @@ void mandelbrot::renderTextOutput()
 	displayText(-1.f, 0.90f, 1.f, 0.f, 0.f, fps);
 }
 
-void mandelbrot::calculateFPS()
+void Mandelbrot2::calculateFPS()
 {
 	frame++;
 	time = glutGet(GLUT_ELAPSED_TIME);
