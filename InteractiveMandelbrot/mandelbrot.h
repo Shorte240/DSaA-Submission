@@ -3,11 +3,11 @@
 // Include GLUT, openGL, input.
 #include "Includes.h"
 
-#define TiS 8 //1024 // same as 1<<29  == 2^20
+#define TiS 32 //1024 // same as 1<<29  == 2^20
 
 // The size of the image to generate.
-#define WIDTH 2048
-#define HEIGHT 2048
+#define WIDTH 1024
+#define HEIGHT 1024
 
 #define SIZE (HEIGHT * WIDTH) // same as 1<<29  == 2^20 // Sizes: 65536, 73728. Anything less than 80k
 
@@ -52,6 +52,10 @@ protected:
 	unsigned b_, g_, r_;           // blue, green and red colours
 
 	unsigned long MAX_ITERATIONS;
+
+	bool recalculate;
+
+	float left_, right_, top_, bottom_, zoom_;
 
 	// For access to user input.
 	Input* input;

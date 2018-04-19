@@ -21,7 +21,12 @@ mandelbrot::mandelbrot(Input *in)
 	g_ = 68;
 	b_ = 32;
 
-	MAX_ITERATIONS = 500;
+	MAX_ITERATIONS = 500; // 500 - starter, 10000 - beautiful
+
+	recalculate = true;
+
+	left_ = right_ = top_ = bottom_ = 0;
+	zoom_ = 1.0f;
 
 	// Other OpenGL / render setting should be applied here.
 
@@ -39,39 +44,8 @@ void mandelbrot::render()
 	// Set the camera
 	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-	//Set colour to green
-	//glColor3f(0.0f, 1.0f, 0.0f);
-
-	//Turn on Wireframe
-	//glPolygonMode(GL_FRONT, GL_LINE);
-
-	// Render geometry/scene here -------------------------------------
-
-//***Polygon***\\
-
-	/*glBegin(GL_POLYGON);
-
-	glColor3f(0.5f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 0.0f, 0.0f);
-
-	glColor3f(0.0f, 0.5f, 0.0f);
-	glVertex3f(1.0f, 0.0f, 0.0f);
-
-	glColor3f(0.0f, 0.0f, 0.5f);
-	glVertex3f(1.5f, 1.0f, 0.0f);
-
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(1.0f, 2.0f, 0.0f);
-
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(0.0f, 2.0f, 0.0f);
-
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(-0.5f, 1.0f, 0.0f);
-
-	glEnd();*/
-
 	glPushMatrix(); {
+		glScalef(2.5f,2.48f,1.f);
 		// render Mandelbrot
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -119,20 +93,62 @@ void mandelbrot::update(float dt)
 {
 	bool Wireframe;
 	// Handle user input
+	if (input->isKeyDown('a'))
+	{
+		//Wireframe = true;
+		//glPolygonMode(GL_FRONT, GL_LINE);
+		left_ -= 0.1f;
+		right_ -= 0.1f;
+		recalculate = true;
+		input->SetKeyUp('a');
+	}
+	if (input->isKeyDown('d'))
+	{
+		//glPolygonMode(GL_FRONT, GL_FILL);
+		left_ += 0.1f;
+		right_ += 0.1f;
+		recalculate = true;
+		input->SetKeyUp('d');
+	}
+	if (input->isKeyDown('w'))
+	{
+		//Wireframe = true;
+		//glPolygonMode(GL_FRONT, GL_LINE);
+		top_ += 0.1f;
+		bottom_ += 0.1f;
+		recalculate = true;
+		input->SetKeyUp('w');
+	}
+	if (input->isKeyDown('s'))
+	{
+		//glPolygonMode(GL_FRONT, GL_FILL);
+		top_ -= 0.1f;
+		bottom_ -= 0.1f;
+		recalculate = true;
+		input->SetKeyUp('s');
+	}
 	if (input->isKeyDown('r'))
 	{
-		Wireframe = true;
-		glPolygonMode(GL_FRONT, GL_LINE);
+		//Wireframe = true;
+		//glPolygonMode(GL_FRONT, GL_LINE);
+		zoom_ -= 0.1f;
+		recalculate = true;
 		input->SetKeyUp('r');
 	}
 	if (input->isKeyDown('t'))
 	{
-		glPolygonMode(GL_FRONT, GL_FILL);
+		//glPolygonMode(GL_FRONT, GL_FILL);
+		zoom_ += 0.1f;
+		recalculate = true;
 		input->SetKeyUp('t');
 	}
 	// update scene related variables.
-	compute_mandelbrot_amp(-2.0f, 1.0f, 1.125f, -1.125f);
-	//compute_mandelbrot_amp(-0.751085f, -0.734975f, 0.118378f, 0.134488f, image); // Zoomed
+	if (recalculate)
+	{
+		compute_mandelbrot_amp((-2.0f + left_)*zoom_, (1.0f + right_)*zoom_, (1.125f + top_)*zoom_, (-1.125f + bottom_)*zoom_);
+		//compute_mandelbrot_amp(-0.751085f, -0.734975f, 0.118378f, 0.134488f);
+		recalculate = false;
+	}
 
 	// Calculate FPS for output
 	calculateFPS();
@@ -194,7 +210,11 @@ void mandelbrot::list_accelerators()
 		report_accelerator(a);
 
 	}
-
+	accelerator::set_default(accls[0].device_path);
+	// [0] = NVIDIA GeForce 440 - Works
+	// [1] = Microsoft Basic Render Driver - Not support limited_double_precision
+	// [2] = Software Adaptor - Blank Screen
+	// [3] = CPU Accelerator - Not support parallel_for_each
 	accelerator acc = accelerator(accelerator::default_accelerator);
 	std::wcout << " default acc = " << acc.description << endl;
 } // list_accelerators
@@ -253,6 +273,9 @@ void mandelbrot::compute_mandelbrot_amp(float left_, float right_, float top_, f
 				// z didn't escape from the circle.
 				// This point is in the Mandelbrot set.
 				//array_view[1][x] = 0x000000; // black
+				r = 0;
+				g = 0;
+				b = 0;
 			}
 			else
 			{
@@ -261,6 +284,14 @@ void mandelbrot::compute_mandelbrot_amp(float left_, float right_, float top_, f
 				r = iterations * iterations * r;
 				g = iterations * iterations * g;
 				b = iterations * iterations * b;
+
+				//r = (r * iterations * iterations << 16);
+				//g = (g * iterations * iterations << 8); //***REALLY COOL***
+				//b = (b * iterations * iterations);
+
+				/*r = (iterations << 16);
+				g = (iterations << 8);
+				b = (iterations);*/
 			}
 			array_view[idx] = (r << 16) | (g << 8) | (b);
 		});
