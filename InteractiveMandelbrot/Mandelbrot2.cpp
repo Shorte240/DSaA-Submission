@@ -112,7 +112,7 @@ void Mandelbrot2::update(float dt)
 	// update scene related variables.
 	if (recalculate)
 	{
-		compute_mandelbrot_amp((-2.0f + left_)*zoom_, (1.0f + right_)*zoom_, (1.125f + top_)*zoom_, (-1.125f + bottom_)*zoom_);
+		compute_mandelbrot_amp(((-2.0f + left_)*zoom_), ((1.0f + right_)*zoom_), ((1.125f + top_)*zoom_), ((-1.125f + bottom_)*zoom_));
 		//compute_mandelbrot_amp((-0.751085f + left_)*zoom_, (-0.734975f + right_)*zoom_, (0.118378f + top_)*zoom_, (0.134488f + bottom_)*zoom_);
 		recalculate = false;
 	}
