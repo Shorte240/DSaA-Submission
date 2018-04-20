@@ -3,11 +3,11 @@
 // Include GLUT, openGL, input.
 #include "Includes.h"
 
-#define TiS 32 //1024 // same as 1<<29  == 2^20
+//#define TiS 32 //1024 // same as 1<<29  == 2^20
 
 // The size of the image to generate.
-#define WIDTH 1024
-#define HEIGHT 768
+//#define WIDTH 1024
+//#define HEIGHT 768
 
 class Mandelbrot2
 {
@@ -39,14 +39,16 @@ protected:
 	void calculateFPS();
 
 	// draw primitive functions
-	uint32_t image[HEIGHT][WIDTH];
 
 	// The number of times to iterate before we assume that a point isn't in the
 	// Mandelbrot set.
 	// (You may need to turn this up if you zoom further into the set.)
-	unsigned long MAX_ITERATIONS;
-
+	int MAX_ITERATIONS;
+	int WIDTH = 1024;
+	int HEIGHT = 768;
 	bool recalculate;
+	uint32_t image[1024][768];
+	GLuint texture;
 
 	float left_, right_, top_, bottom_, zoom_;
 

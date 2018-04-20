@@ -23,6 +23,10 @@ Mandelbrot2::Mandelbrot2(Input *in)
 	zoom_ = 1.0f;
 
 	// Initialise variables
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void Mandelbrot2::render()
@@ -36,12 +40,6 @@ void Mandelbrot2::render()
 	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	// Render geometry/scene here -------------------------------------
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glScalef(2.5f,2.48f,0.0f);
 
@@ -115,6 +113,7 @@ void Mandelbrot2::update(float dt)
 		compute_mandelbrot_amp(((-2.0f + left_)*zoom_), ((1.0f + right_)*zoom_), ((1.125f + top_)*zoom_), ((-1.125f + bottom_)*zoom_));
 		//compute_mandelbrot_amp((-0.751085f + left_)*zoom_, (-0.734975f + right_)*zoom_, (0.118378f + top_)*zoom_, (0.134488f + bottom_)*zoom_);
 		recalculate = false;
+		glTexImage2D(GL_TEXTURE_2D, 0, 4, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image);
 	}
 
 	// Calculate FPS for output
@@ -203,6 +202,8 @@ void Mandelbrot2::query_AMP_support()
 void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, float bottom_)
 {
 	unsigned max_iter = MAX_ITERATIONS;
+	unsigned w = WIDTH;
+	unsigned h = HEIGHT;
 	uint32_t *pImage = &(image[0][0]);
 
 	array_view<uint32_t, 2> a(HEIGHT, WIDTH, pImage);
@@ -218,7 +219,7 @@ void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, 
 
 			// Work out the point in the complex plane that
 			// corresponds to this pixel in the output image.
-			Complex1 c = { left_ + (x * (right_ - left_) / WIDTH), top_ + (y * (bottom_ - top_) / HEIGHT) };
+			Complex1 c = { left_ + (x * (right_ - left_) / w), top_ + (y * (bottom_ - top_) / h) };
 
 			// Start off z at (0, 0).
 			Complex1 z = { 0.0, 0.0 };
@@ -253,6 +254,8 @@ void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, 
 	{
 		MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
 	}
+	pImage = NULL;
+	delete pImage;
 }
 
 void Mandelbrot2::displayText(float x, float y, float r, float g, float b, char * string)
