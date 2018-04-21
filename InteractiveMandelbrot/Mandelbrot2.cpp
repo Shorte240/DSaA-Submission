@@ -77,6 +77,53 @@ void Mandelbrot2::render()
 
 void Mandelbrot2::update(float dt)
 {
+	
+
+	// 640x480
+	if (input->isKeyDown('1'))
+	{
+		if (WIDTH != 640 && HEIGHT != 480)
+		{
+			WIDTH = 640;
+			HEIGHT = 480;
+			recalculate = true;
+		}
+		input->SetKeyUp('1');
+	}
+	// 960x540
+	if (input->isKeyDown('2'))
+	{
+		if (WIDTH != 960 && HEIGHT != 540)
+		{
+			WIDTH = 960;
+			HEIGHT = 540;
+			recalculate = true;
+		}
+		input->SetKeyUp('2');
+	}
+	// 1280x720
+	if (input->isKeyDown('3'))
+	{
+		if (WIDTH != 1280 && HEIGHT != 720)
+		{
+			WIDTH = 1280;
+			HEIGHT = 720;
+			recalculate = true;
+		}
+		input->SetKeyUp('3');
+	}
+	// 1920x1080
+	if (input->isKeyDown('4'))
+	{
+		if (WIDTH != 1920 && HEIGHT != 1080)
+		{
+			WIDTH = 1920;
+			HEIGHT = 1080;
+			recalculate = true;
+		}
+		input->SetKeyUp('4');
+	}
+
 	// Set a more precise movement variable depending on zoom level
 	if (zoom_ > 0.5f)
 	{
@@ -261,8 +308,8 @@ void Mandelbrot2::update(float dt)
 
 void Mandelbrot2::resize(int w, int h)
 {
-	width = w;
-	height = h;
+	window_width = w;
+	window_height = h;
 	// Prevent a divide by zero, when window is too short
 	// (you cant make a window of zero width).
 	if (h == 0)
@@ -348,7 +395,7 @@ void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, 
 	unsigned g = green;
 	unsigned b = blue;
 
-	array_view<uint32_t, 2> a(HEIGHT, WIDTH, pImage);
+	array_view<uint32_t, 2> a(h, w, pImage);
 	a.discard_data();
 
 	try
@@ -487,7 +534,7 @@ void Mandelbrot2::displayText(float x, float y, float r, float g, float b, char 
 	// Swap back to 3D rendering.
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(fov, ((float)width / (float)height), nearPlane, farPlane);
+	gluPerspective(fov, ((float)window_width / (float)window_height), nearPlane, farPlane);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -498,23 +545,30 @@ void Mandelbrot2::renderTextOutput()
 	displayText(-1.f, 0.96f, 1.f, 1.f, 1.f, mouseText);
 	displayText(-1.f, 0.90f, 1.f, 1.f, 1.f, fps);
 
+	// Render width value
+	sprintf_s(widthText, "Width: %i", WIDTH);
+	displayText(-1.f, 0.84f, 1.f, 1.f, 1.f, widthText);
+	// Render height value
+	sprintf_s(heightText, "Height: %i", HEIGHT);
+	displayText(-1.f, 0.78f, 1.f, 1.f, 1.f, heightText);
+
 	// Render max iterations value
 	sprintf_s(iterationText, "Max_Iter: %i", MAX_ITERATIONS);
-	displayText(-1.f, 0.84f, 1.f, 1.f, 1.f, iterationText);
+	displayText(-1.f, 0.72f, 1.f, 1.f, 1.f, iterationText);
 
 	// Render zoom value
 	sprintf_s(zoomText, "Zoom: %f", zoom_);
-	displayText(-1.f, 0.78f, 1.f, 1.f, 1.f, zoomText);
+	displayText(-1.f, 0.66f, 1.f, 1.f, 1.f, zoomText);
 
 	// Render blue value
 	sprintf_s(blueText, "Blue: %i", blue);
-	displayText(-1.f, 0.72f, 1.f, 1.f, 1.f, blueText);
+	displayText(-1.f, 0.60f, 1.f, 1.f, 1.f, blueText);
 	// Render green value
 	sprintf_s(greenText, "Green: %i", green);
-	displayText(-1.f, 0.66f, 1.f, 1.f, 1.f, greenText);
+	displayText(-1.f, 0.54f, 1.f, 1.f, 1.f, greenText);
 	// Render red value
 	sprintf_s(redText, "Red: %i", red);
-	displayText(-1.f, 0.60f, 1.f, 1.f, 1.f, redText);
+	displayText(-1.f, 0.48f, 1.f, 1.f, 1.f, redText);
 }
 
 void Mandelbrot2::calculateFPS()

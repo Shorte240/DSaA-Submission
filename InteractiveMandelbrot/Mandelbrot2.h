@@ -45,12 +45,12 @@ protected:
 	// Mandelbrot set.
 	// (You may need to turn this up if you zoom further into the set.)
 	int MAX_ITERATIONS;
-	int WIDTH = 1024;
-	int HEIGHT = 768;
+	int WIDTH = 640;
+	int HEIGHT = 480;
 	
 	int iteration_modifier_;
 	bool recalculate;
-	uint32_t image[1024][768];
+	uint32_t image[1920][1080];
 	std::array<uint32_t, DATA_SIZE> i;
 	GLuint texture;
 
@@ -63,7 +63,7 @@ protected:
 	Input* input;
 
 	// For Window and frustum calculation.
-	int width, height;
+	int window_width, window_height;
 	float fov, nearPlane, farPlane;
 
 	// For FPS counter and mouse coordinate output.
@@ -75,5 +75,7 @@ protected:
 	char blueText[40];
 	char greenText[40];
 	char redText[40];
+	char widthText[40];
+	char heightText[40];
 };
 
