@@ -3,12 +3,6 @@
 // Include GLUT, openGL, input.
 #include "Includes.h"
 
-//#define TiS 32 //1024 // same as 1<<29  == 2^20
-
-// The size of the image to generate.
-//#define WIDTH 1024
-//#define HEIGHT 768
-
 class Mandelbrot2
 {
 public:
@@ -46,11 +40,12 @@ protected:
 	int MAX_ITERATIONS;
 	int WIDTH = 1024;
 	int HEIGHT = 768;
+	int iteration_modifier_;
 	bool recalculate;
 	uint32_t image[1024][768];
 	GLuint texture;
 
-	float left_, right_, top_, bottom_, zoom_;
+	float left_, right_, top_, bottom_, zoom_, movement_modifier_, zoom_modifier_;
 
 	// For access to user input.
 	Input* input;
@@ -63,5 +58,7 @@ protected:
 	int frame = 0, time = 0, timebase = 0;
 	char fps[40];
 	char mouseText[40];
+	char iterationText[40];
+	char zoomText[40];
 };
 

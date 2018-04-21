@@ -16,11 +16,15 @@ Mandelbrot2::Mandelbrot2(Input *in)
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 	glEnable(GL_TEXTURE_2D);
 	// Other OpenGL / render setting should be applied here.
+
 	MAX_ITERATIONS = 500; // 500 - starter, 10000 - beautiful
+	iteration_modifier_ = MAX_ITERATIONS;
 	recalculate = true;
 
 	left_ = right_ = top_ = bottom_ = 0;
 	zoom_ = 1.0f;
+	movement_modifier_ = 0.1f;
+	zoom_modifier_ = 1.01f;
 
 	// Initialise variables
 	glGenTextures(1, &texture);
@@ -40,8 +44,8 @@ void Mandelbrot2::render()
 	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	// Render geometry/scene here -------------------------------------
-
-	glScalef(2.5f,2.48f,0.0f);
+	glPushMatrix();
+	glScalef(2.5f, 2.48f,0.0f); //2.5f, 2.48f, 0.0f
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(1.0f, 1.0f);
@@ -53,6 +57,7 @@ void Mandelbrot2::render()
 	glTexCoord2f(0.0f, 1.0f);
 	glVertex3f(-1.0f, -1.0f, 0.0f); // bottom left
 	glEnd();
+	glPopMatrix();
 	// End render geometry --------------------------------------
 
 	// Render text, should be last object rendered.
@@ -64,53 +69,80 @@ void Mandelbrot2::render()
 
 void Mandelbrot2::update(float dt)
 {
+	// move left
 	if (input->isKeyDown('a'))
 	{
-		left_ -= 0.1f;
-		right_ -= 0.1f;
+		left_ -= movement_modifier_;
+		right_ -= movement_modifier_;
 		recalculate = true;
 		input->SetKeyUp('a');
 	}
+	// move right
 	if (input->isKeyDown('d'))
 	{
-		left_ += 0.1f;
-		right_ += 0.1f;
+		left_ += movement_modifier_;
+		right_ += movement_modifier_;
 		recalculate = true;
 		input->SetKeyUp('d');
 	}
+	// move up
 	if (input->isKeyDown('w'))
 	{
-		top_ += 0.1f;
-		bottom_ += 0.1f;
+		top_ += movement_modifier_;
+		bottom_ += movement_modifier_;
 		recalculate = true;
 		input->SetKeyUp('w');
 	}
+	// move down
 	if (input->isKeyDown('s'))
 	{
-		top_ -= 0.1f;
-		bottom_ -= 0.1f;
+		top_ -= movement_modifier_;
+		bottom_ -= movement_modifier_;
 		recalculate = true;
 		input->SetKeyUp('s');
 	}
+	// zoom in
 	if (input->isKeyDown('r'))
 	{
-		zoom_ -= 0.1f;
+		zoom_ *= 1 / zoom_modifier_;
 		recalculate = true;
 		input->SetKeyUp('r');
 	}
-	if (input->isKeyDown('t'))
+	// zoom out
+	if (input->isKeyDown('f'))
 	{
-		if (zoom_ <= 1.0f)
+		//if (zoom_ <= 1.0f)
 		{
-			zoom_ += 0.1f;
+			zoom_ *= zoom_modifier_;
+			recalculate = true;
 		}
-		recalculate = true;
-		input->SetKeyUp('t');
+		input->SetKeyUp('f');
+	}
+	// increase MAX_ITERATIONS
+	if (input->isKeyDown('q'))
+	{
+		if (MAX_ITERATIONS < 10000)
+		{
+			MAX_ITERATIONS += iteration_modifier_;
+			recalculate = true;
+		}
+		input->SetKeyUp('q');
+	}
+	// decrease MAX_ITERATIONS
+	if (input->isKeyDown('e'))
+	{
+		if (MAX_ITERATIONS > 0)
+		{
+			MAX_ITERATIONS -= iteration_modifier_;
+			recalculate = true;
+		}
+		input->SetKeyUp('e');
 	}
 	// update scene related variables.
 	if (recalculate)
 	{
 		compute_mandelbrot_amp(((-2.0f + left_)*zoom_), ((1.0f + right_)*zoom_), ((1.125f + top_)*zoom_), ((-1.125f + bottom_)*zoom_));
+		//compute_mandelbrot_amp(((-2.0f + left_)), ((1.0f + right_)), ((1.125f + top_)), ((-1.125f + bottom_)));
 		//compute_mandelbrot_amp((-0.751085f + left_)*zoom_, (-0.734975f + right_)*zoom_, (0.118378f + top_)*zoom_, (0.134488f + bottom_)*zoom_);
 		recalculate = false;
 		glTexImage2D(GL_TEXTURE_2D, 0, 4, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image);
@@ -293,8 +325,12 @@ void Mandelbrot2::renderTextOutput()
 {
 	// Render current mouse position and frames per second.
 	sprintf_s(mouseText, "Mouse: %i, %i", input->getMouseX(), input->getMouseY());
-	displayText(-1.f, 0.96f, 1.f, 0.f, 0.f, mouseText);
-	displayText(-1.f, 0.90f, 1.f, 0.f, 0.f, fps);
+	displayText(-1.f, 0.96f, 1.f, 1.f, 1.f, mouseText);
+	displayText(-1.f, 0.90f, 1.f, 1.f, 1.f, fps);
+	sprintf_s(iterationText, "Max_Iter: %i", MAX_ITERATIONS);
+	displayText(-1.f, 0.84f, 1.f, 1.f, 1.f, iterationText);
+	sprintf_s(zoomText, "Zoom: %4.2f", zoom_);
+	displayText(-1.f, 0.78f, 1.f, 1.f, 1.f, zoomText);
 }
 
 void Mandelbrot2::calculateFPS()
