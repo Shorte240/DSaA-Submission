@@ -25,12 +25,18 @@ Mandelbrot2::Mandelbrot2(Input *in)
 	zoom_ = 1.0f;
 	movement_modifier_ = 0.1f;
 	zoom_modifier_ = 1.01f;
+	mandelbrot_timings_file.open("amp_mandelbrot_timings.csv");
 
 	// Initialise variables
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+Mandelbrot2::~Mandelbrot2()
+{
+	mandelbrot_timings_file.close();
 }
 
 void Mandelbrot2::render()
@@ -141,9 +147,28 @@ void Mandelbrot2::update(float dt)
 	// update scene related variables.
 	if (recalculate)
 	{
-		compute_mandelbrot_amp(((-2.0f + left_)*zoom_), ((1.0f + right_)*zoom_), ((1.125f + top_)*zoom_), ((-1.125f + bottom_)*zoom_));
-		//compute_mandelbrot_amp(((-2.0f + left_)), ((1.0f + right_)), ((1.125f + top_)), ((-1.125f + bottom_)));
-		//compute_mandelbrot_amp((-0.751085f + left_)*zoom_, (-0.734975f + right_)*zoom_, (0.118378f + top_)*zoom_, (0.134488f + bottom_)*zoom_);
+		// Start timing
+		the_amp_clock::time_point start = the_amp_clock::now();
+
+		compute_mandelbrot_amp(((-2.0f + left_)*zoom_), ((1.0f + right_)*zoom_), ((1.125f + top_)*zoom_), ((-1.125f + bottom_)*zoom_)); // full
+
+		// Stop timing																															// Stop timing
+		the_amp_clock::time_point end = the_amp_clock::now();
+
+		// Compute the difference between the two times in milliseconds
+		auto time_taken = duration_cast<milliseconds>(end - start).count();
+
+		mandelbrot_timings_file << "Resolution Width: " << "," << WIDTH << endl;
+		mandelbrot_timings_file << "Resolution Height: "  << "," << HEIGHT << endl;
+		mandelbrot_timings_file << "Max Iterations: " << "," << MAX_ITERATIONS << endl;
+		mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
+		mandelbrot_timings_file << endl;
+
+		//compute_mandelbrot_amp((-0.751085f + left_)*zoom_, (-0.734975f + right_)*zoom_, (0.118378f + top_)*zoom_, (0.134488f + bottom_)*zoom_); // zoomed
+		
+		//compute_mandelbrot_amp_tiled(((-2.0f + left_)*zoom_), ((1.0f + right_)*zoom_), ((1.125f + top_)*zoom_), ((-1.125f + bottom_)*zoom_)); // full - needs fixed
+
+
 		recalculate = false;
 		glTexImage2D(GL_TEXTURE_2D, 0, 4, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image);
 	}
@@ -288,6 +313,65 @@ void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, 
 	}
 	pImage = NULL;
 	delete pImage;
+}
+
+void Mandelbrot2::compute_mandelbrot_amp_tiled(float left_, float right_, float top_, float bottom_)
+{
+	unsigned max_iter = MAX_ITERATIONS;
+	i.empty();
+
+	extent<1> e(DATA_SIZE);
+	array_view<uint32_t> a(e, i);
+	/*array_view<uint32_t, 2> a(HEIGHT, WIDTH, pImage);*/
+	a.discard_data();
+
+	try
+	{
+		parallel_for_each(a.extent.tile<TILE_SIZE>(), [=](tiled_index<TILE_SIZE> t_idx) restrict(amp)
+		{
+			//USE THREAD ID/INDEX TO MAP INTO THE COMPLEX PLANE
+			index<1> idx = t_idx.global;
+			int x = idx[0];
+			int y = idx[1];
+
+			// Work out the point in the complex plane that
+			// corresponds to this pixel in the output image.
+			Complex1 c = { left_ + (x * (right_ - left_) / wi), top_ + (y * (bottom_ - top_) / he) };
+
+			// Start off z at (0, 0).
+			Complex1 z = { 0.0, 0.0 };
+
+			// Iterate z = z^2 + c until z moves more than 2 units
+			// away from (0, 0), or we've iterated too many times.
+			int iterations = 0;
+			while (c_abs(z) < 2.0 && iterations < max_iter)
+			{
+				z = c_add(c_mul(z, z), c);
+
+				++iterations;
+			}
+
+			if (iterations == max_iter)
+			{
+				// z didn't escape from the circle.
+				// This point is in the Mandelbrot set.
+				//a[y][x] = 0x000000; // black
+				//a[idx] = 0x000000;
+			}
+			else
+			{
+				// z escaped within less than MAX_ITERATIONS
+				// iterations. This point isn't in the set.
+				//a[y][x] = 0xFFFFFF; // white
+				a[idx] = (iterations << 16) | (iterations << 8) | iterations; // grayscale
+			}
+		});
+		a.synchronize();
+	}
+	catch (const std::exception& ex)
+	{
+		MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
+	}
 }
 
 void Mandelbrot2::displayText(float x, float y, float r, float g, float b, char * string)
