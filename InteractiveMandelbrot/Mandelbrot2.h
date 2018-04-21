@@ -56,7 +56,8 @@ protected:
 
 	ofstream mandelbrot_timings_file;
 
-	float left_, right_, top_, bottom_, zoom_, movement_modifier_, zoom_modifier_;
+	float left_, right_, top_, bottom_, zoom_, movement_modifier_;
+	int red, green, blue;
 
 	// For access to user input.
 	Input* input;
@@ -71,5 +72,8 @@ protected:
 	char mouseText[40];
 	char iterationText[40];
 	char zoomText[40];
+	char blueText[40];
+	char greenText[40];
+	char redText[40];
 };
 

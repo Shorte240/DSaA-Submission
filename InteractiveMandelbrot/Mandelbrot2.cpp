@@ -23,9 +23,11 @@ Mandelbrot2::Mandelbrot2(Input *in)
 
 	left_ = right_ = top_ = bottom_ = 0;
 	zoom_ = 1.0f;
-	movement_modifier_ = 0.1f;
-	zoom_modifier_ = 1.01f;
+	movement_modifier_ = 0.005f;
 	mandelbrot_timings_file.open("amp_mandelbrot_timings.csv");
+	red = 1;
+	green = 1;
+	blue = 1;
 
 	// Initialise variables
 	glGenTextures(1, &texture);
@@ -75,11 +77,30 @@ void Mandelbrot2::render()
 
 void Mandelbrot2::update(float dt)
 {
+	// Set a more precise movement variable depending on zoom level
+	if (zoom_ > 0.5f)
+	{
+		movement_modifier_ = 0.05f;
+	}
+	if (zoom_ < 0.05f && zoom_ > 0.005f)
+	{
+		movement_modifier_ = 0.005f;
+	}
+	if (zoom_ < 0.005f && zoom_ > 0.00005f)
+	{
+		movement_modifier_ = 0.00005f;
+	}
+	if (zoom_ < 0.00005f)
+	{
+		movement_modifier_ = 0.000005f;
+	}
+
 	// move left
 	if (input->isKeyDown('a'))
 	{
 		left_ -= movement_modifier_;
 		right_ -= movement_modifier_;
+		
 		recalculate = true;
 		input->SetKeyUp('a');
 	}
@@ -107,23 +128,22 @@ void Mandelbrot2::update(float dt)
 		recalculate = true;
 		input->SetKeyUp('s');
 	}
+
 	// zoom in
 	if (input->isKeyDown('r'))
 	{
-		zoom_ *= 1 / zoom_modifier_;
+		zoom_ -= (zoom_ / 10);
 		recalculate = true;
 		input->SetKeyUp('r');
 	}
 	// zoom out
 	if (input->isKeyDown('f'))
 	{
-		//if (zoom_ <= 1.0f)
-		{
-			zoom_ *= zoom_modifier_;
-			recalculate = true;
-		}
+		zoom_ += (zoom_ / 10);
+		recalculate = true;
 		input->SetKeyUp('f');
 	}
+
 	// increase MAX_ITERATIONS
 	if (input->isKeyDown('q'))
 	{
@@ -144,13 +164,75 @@ void Mandelbrot2::update(float dt)
 		}
 		input->SetKeyUp('e');
 	}
+
+	// increase blue
+	if (input->isKeyDown('t'))
+	{
+		if (blue < 255)
+		{
+			blue++;
+			recalculate = true;
+		}
+		input->SetKeyUp('t');
+	}
+	//decrease blue
+	if (input->isKeyDown('g'))
+	{
+		if (blue > 1)
+		{
+			blue--;
+			recalculate = true;
+		}
+		input->SetKeyUp('g');
+	}
+	//increase green
+	if (input->isKeyDown('y'))
+	{
+		if (green < 255)
+		{
+			green++;
+			recalculate = true;
+		}
+		input->SetKeyUp('y');
+	}
+	//decrease green
+	if (input->isKeyDown('h'))
+	{
+		if (green > 1)
+		{
+			green--;
+			recalculate = true;
+		}
+		input->SetKeyUp('h');
+	}
+	//increase red
+	if (input->isKeyDown('u'))
+	{
+		if (red < 255)
+		{
+			red++;
+			recalculate = true;
+		}
+		input->SetKeyUp('u');
+	}
+	//decrease red
+	if (input->isKeyDown('j'))
+	{
+		if (red > 1)
+		{
+			red--;
+			recalculate = true;
+		}
+		input->SetKeyUp('j');
+	}
+
 	// update scene related variables.
 	if (recalculate)
 	{
 		// Start timing
 		the_amp_clock::time_point start = the_amp_clock::now();
 
-		compute_mandelbrot_amp(((-2.0f + left_)*zoom_), ((1.0f + right_)*zoom_), ((1.125f + top_)*zoom_), ((-1.125f + bottom_)*zoom_)); // full
+		compute_mandelbrot_amp(((-2.0f * zoom_) + left_), ((1.0f *zoom_) + right_), ((1.125f * zoom_) + top_), ((-1.125f * zoom_) + bottom_)); // full
 
 		// Stop timing																															// Stop timing
 		the_amp_clock::time_point end = the_amp_clock::now();
@@ -262,6 +344,9 @@ void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, 
 	unsigned w = WIDTH;
 	unsigned h = HEIGHT;
 	uint32_t *pImage = &(image[0][0]);
+	unsigned r = red;
+	unsigned g = green;
+	unsigned b = blue;
 
 	array_view<uint32_t, 2> a(HEIGHT, WIDTH, pImage);
 	a.discard_data();
@@ -302,7 +387,8 @@ void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, 
 				// z escaped within less than MAX_ITERATIONS
 				// iterations. This point isn't in the set.
 				//a[y][x] = 0xFFFFFF; // white
-				a[y][x] = (iterations << 16) | (iterations << 8) | iterations; // grayscale
+				a[y][x] = (b * iterations << 16) | (g * iterations << 8) | r * iterations; // grayscale
+				// BGR
 			}
 		});
 		a.synchronize();
@@ -411,10 +497,24 @@ void Mandelbrot2::renderTextOutput()
 	sprintf_s(mouseText, "Mouse: %i, %i", input->getMouseX(), input->getMouseY());
 	displayText(-1.f, 0.96f, 1.f, 1.f, 1.f, mouseText);
 	displayText(-1.f, 0.90f, 1.f, 1.f, 1.f, fps);
+
+	// Render max iterations value
 	sprintf_s(iterationText, "Max_Iter: %i", MAX_ITERATIONS);
 	displayText(-1.f, 0.84f, 1.f, 1.f, 1.f, iterationText);
-	sprintf_s(zoomText, "Zoom: %4.2f", zoom_);
+
+	// Render zoom value
+	sprintf_s(zoomText, "Zoom: %f", zoom_);
 	displayText(-1.f, 0.78f, 1.f, 1.f, 1.f, zoomText);
+
+	// Render blue value
+	sprintf_s(blueText, "Blue: %i", blue);
+	displayText(-1.f, 0.72f, 1.f, 1.f, 1.f, blueText);
+	// Render green value
+	sprintf_s(greenText, "Green: %i", green);
+	displayText(-1.f, 0.66f, 1.f, 1.f, 1.f, greenText);
+	// Render red value
+	sprintf_s(redText, "Red: %i", red);
+	displayText(-1.f, 0.60f, 1.f, 1.f, 1.f, redText);
 }
 
 void Mandelbrot2::calculateFPS()
