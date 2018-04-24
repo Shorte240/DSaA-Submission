@@ -11,7 +11,6 @@
 
 // Required variables; pointer to scene and input objects. Initialise variable used in delta time calculation.
 Mandelbrot2* mandelbrot2_;
-//Scene* scene;
 Input* input;
 int oldTimeSinceStart = 0;
 

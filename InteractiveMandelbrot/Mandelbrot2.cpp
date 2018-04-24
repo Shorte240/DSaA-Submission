@@ -17,23 +17,11 @@ Mandelbrot2::Mandelbrot2(Input *in)
 	glEnable(GL_TEXTURE_2D);
 	// Other OpenGL / render setting should be applied here.
 
-	MAX_ITERATIONS = 500; // 500 - starter, 10000 - beautiful
-	iteration_modifier_ = MAX_ITERATIONS;
-	recalculate = true;
-
-	left_ = right_ = top_ = bottom_ = 0;
-	zoom_ = 1.0f;
-	movement_modifier_ = 0.005f;
-	mandelbrot_timings_file.open("amp_mandelbrot_timings.csv");
-	red = 1;
-	green = 1;
-	blue = 1;
-
 	// Initialise variables
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	initVariables();
+
+	// Initialise texutre
+	initTexture();
 }
 
 Mandelbrot2::~Mandelbrot2()
@@ -41,6 +29,7 @@ Mandelbrot2::~Mandelbrot2()
 	mandelbrot_timings_file.close();
 }
 
+// Render the scene
 void Mandelbrot2::render()
 {
 	// Clear Color and Depth Buffers
@@ -52,20 +41,9 @@ void Mandelbrot2::render()
 	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	// Render geometry/scene here -------------------------------------
-	glPushMatrix();
-	glScalef(2.5f, 2.48f,0.0f); //2.5f, 2.48f, 0.0f
+	
+	generateQuad();
 
-	glBegin(GL_QUADS);
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 0.0f); // bottom right
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(1.0f, 1.0f, 0.0f); // top right
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(-1.0f, 1.0f, 0.0f); // top left
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 0.0f); // bottom left
-	glEnd();
-	glPopMatrix();
 	// End render geometry --------------------------------------
 
 	// Render text, should be last object rendered.
@@ -73,205 +51,22 @@ void Mandelbrot2::render()
 
 	// Swap buffers, after all objects are rendered.
 	glutSwapBuffers();
-}
+} // render
 
+// Update the scene
 void Mandelbrot2::update(float dt)
 {
-	
+	setResolution();
 
-	// 640x480
-	if (input->isKeyDown('1'))
-	{
-		if (WIDTH != 640 && HEIGHT != 480)
-		{
-			WIDTH = 640;
-			HEIGHT = 480;
-			recalculate = true;
-		}
-		input->SetKeyUp('1');
-	}
-	// 960x540
-	if (input->isKeyDown('2'))
-	{
-		if (WIDTH != 960 && HEIGHT != 540)
-		{
-			WIDTH = 960;
-			HEIGHT = 540;
-			recalculate = true;
-		}
-		input->SetKeyUp('2');
-	}
-	// 1280x720
-	if (input->isKeyDown('3'))
-	{
-		if (WIDTH != 1280 && HEIGHT != 720)
-		{
-			WIDTH = 1280;
-			HEIGHT = 720;
-			recalculate = true;
-		}
-		input->SetKeyUp('3');
-	}
-	// 1920x1080
-	if (input->isKeyDown('4'))
-	{
-		if (WIDTH != 1920 && HEIGHT != 1080)
-		{
-			WIDTH = 1920;
-			HEIGHT = 1080;
-			recalculate = true;
-		}
-		input->SetKeyUp('4');
-	}
+	alterMovementModifierByZoomLevel();
 
-	// Set a more precise movement variable depending on zoom level
-	if (zoom_ > 0.5f)
-	{
-		movement_modifier_ = 0.05f;
-	}
-	if (zoom_ < 0.05f && zoom_ > 0.005f)
-	{
-		movement_modifier_ = 0.005f;
-	}
-	if (zoom_ < 0.005f && zoom_ > 0.00005f)
-	{
-		movement_modifier_ = 0.00005f;
-	}
-	if (zoom_ < 0.00005f)
-	{
-		movement_modifier_ = 0.000005f;
-	}
+	userMovement();
 
-	// move left
-	if (input->isKeyDown('a'))
-	{
-		left_ -= movement_modifier_;
-		right_ -= movement_modifier_;
-		
-		recalculate = true;
-		input->SetKeyUp('a');
-	}
-	// move right
-	if (input->isKeyDown('d'))
-	{
-		left_ += movement_modifier_;
-		right_ += movement_modifier_;
-		recalculate = true;
-		input->SetKeyUp('d');
-	}
-	// move up
-	if (input->isKeyDown('w'))
-	{
-		top_ += movement_modifier_;
-		bottom_ += movement_modifier_;
-		recalculate = true;
-		input->SetKeyUp('w');
-	}
-	// move down
-	if (input->isKeyDown('s'))
-	{
-		top_ -= movement_modifier_;
-		bottom_ -= movement_modifier_;
-		recalculate = true;
-		input->SetKeyUp('s');
-	}
+	userZoom();
 
-	// zoom in
-	if (input->isKeyDown('r'))
-	{
-		zoom_ -= (zoom_ / 10);
-		recalculate = true;
-		input->SetKeyUp('r');
-	}
-	// zoom out
-	if (input->isKeyDown('f'))
-	{
-		zoom_ += (zoom_ / 10);
-		recalculate = true;
-		input->SetKeyUp('f');
-	}
+	setIterations();
 
-	// increase MAX_ITERATIONS
-	if (input->isKeyDown('q'))
-	{
-		if (MAX_ITERATIONS < 10000)
-		{
-			MAX_ITERATIONS += iteration_modifier_;
-			recalculate = true;
-		}
-		input->SetKeyUp('q');
-	}
-	// decrease MAX_ITERATIONS
-	if (input->isKeyDown('e'))
-	{
-		if (MAX_ITERATIONS > 0)
-		{
-			MAX_ITERATIONS -= iteration_modifier_;
-			recalculate = true;
-		}
-		input->SetKeyUp('e');
-	}
-
-	// increase blue
-	if (input->isKeyDown('t'))
-	{
-		if (blue < 255)
-		{
-			blue++;
-			recalculate = true;
-		}
-		input->SetKeyUp('t');
-	}
-	//decrease blue
-	if (input->isKeyDown('g'))
-	{
-		if (blue > 1)
-		{
-			blue--;
-			recalculate = true;
-		}
-		input->SetKeyUp('g');
-	}
-	//increase green
-	if (input->isKeyDown('y'))
-	{
-		if (green < 255)
-		{
-			green++;
-			recalculate = true;
-		}
-		input->SetKeyUp('y');
-	}
-	//decrease green
-	if (input->isKeyDown('h'))
-	{
-		if (green > 1)
-		{
-			green--;
-			recalculate = true;
-		}
-		input->SetKeyUp('h');
-	}
-	//increase red
-	if (input->isKeyDown('u'))
-	{
-		if (red < 255)
-		{
-			red++;
-			recalculate = true;
-		}
-		input->SetKeyUp('u');
-	}
-	//decrease red
-	if (input->isKeyDown('j'))
-	{
-		if (red > 1)
-		{
-			red--;
-			recalculate = true;
-		}
-		input->SetKeyUp('j');
-	}
+	setColour();
 
 	// update scene related variables.
 	if (recalculate)
@@ -279,7 +74,7 @@ void Mandelbrot2::update(float dt)
 		// Start timing
 		the_amp_clock::time_point start = the_amp_clock::now();
 
-		compute_mandelbrot_amp(((-2.0f * zoom_) + left_), ((1.0f *zoom_) + right_), ((1.125f * zoom_) + top_), ((-1.125f * zoom_) + bottom_)); // full
+		gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full
 
 		// Stop timing																															// Stop timing
 		the_amp_clock::time_point end = the_amp_clock::now();
@@ -293,10 +88,7 @@ void Mandelbrot2::update(float dt)
 		mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
 		mandelbrot_timings_file << endl;
 
-		//compute_mandelbrot_amp((-0.751085f + left_)*zoom_, (-0.734975f + right_)*zoom_, (0.118378f + top_)*zoom_, (0.134488f + bottom_)*zoom_); // zoomed
-		
-		//compute_mandelbrot_amp_tiled(((-2.0f + left_)*zoom_), ((1.0f + right_)*zoom_), ((1.125f + top_)*zoom_), ((-1.125f + bottom_)*zoom_)); // full - needs fixed
-
+		//gpu_amp_mandelbrot(((-0.751085f * zoom_) + X_Modifier_), ((-0.734975f *zoom_) + X_Modifier_), ((0.118378f * zoom_) + Y_Modifier_), ((0.134488f * zoom_) + Y_Modifier_)); // zoomed
 
 		recalculate = false;
 		glTexImage2D(GL_TEXTURE_2D, 0, 4, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image);
@@ -304,8 +96,9 @@ void Mandelbrot2::update(float dt)
 
 	// Calculate FPS for output
 	calculateFPS();
-}
+} // update
 
+// Resize the window and scene components if user rescales window
 void Mandelbrot2::resize(int w, int h)
 {
 	window_width = w;
@@ -334,8 +127,9 @@ void Mandelbrot2::resize(int w, int h)
 
 	// Get Back to the Modelview
 	glMatrixMode(GL_MODELVIEW);
-}
+} // resize
 
+// Report all the characteristics of an accelerator
 void Mandelbrot2::report_accelerator(const accelerator a)
 {
 	const std::wstring bs[2] = { L"false", L"true" };
@@ -348,7 +142,8 @@ void Mandelbrot2::report_accelerator(const accelerator a)
 		<< endl << "       supports_double_precision         = " << bs[a.supports_double_precision]
 		<< endl << "       supports_limited_double_precision = " << bs[a.supports_limited_double_precision]
 		<< endl;
-}
+} // report_accelerator
+
 // List and select the accelerator to use
 void Mandelbrot2::list_accelerators()
 {
@@ -362,15 +157,16 @@ void Mandelbrot2::list_accelerators()
 		report_accelerator(a);
 
 	}
-	accelerator::set_default(accls[0].device_path);
-	// [0] = NVIDIA GeForce 440 - Works
+	//accelerator::set_default(accls[0].device_path); // set default accelerator to GPU
+	// [0] = NVIDIA GeForce 440 - Vita Lab, Intel (R) HD Graphics - 4506
 	// [1] = Microsoft Basic Render Driver - Not support limited_double_precision
 	// [2] = Software Adaptor - Blank Screen
 	// [3] = CPU Accelerator - Not support parallel_for_each
 	accelerator acc = accelerator(accelerator::default_accelerator);
 	std::wcout << " default acc = " << acc.description << endl;
 } // list_accelerators
-  // query if AMP accelerator exists on hardware
+
+// query if AMP accelerator exists on hardware
 void Mandelbrot2::query_AMP_support()
 {
 	std::vector<accelerator> accls = accelerator::get_all();
@@ -385,7 +181,8 @@ void Mandelbrot2::query_AMP_support()
 	}
 } // query_AMP_support
 
-void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, float bottom_)
+// Generate mandelbrot set on GPU using amp
+void Mandelbrot2::gpu_amp_mandelbrot(float left_, float right_, float top_, float bottom_)
 {
 	unsigned max_iter = MAX_ITERATIONS;
 	unsigned w = WIDTH;
@@ -444,69 +241,9 @@ void Mandelbrot2::compute_mandelbrot_amp(float left_, float right_, float top_, 
 	{
 		MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
 	}
-	pImage = NULL;
-	delete pImage;
-}
+} // gpu_amp_mandelbrot
 
-void Mandelbrot2::compute_mandelbrot_amp_tiled(float left_, float right_, float top_, float bottom_)
-{
-	unsigned max_iter = MAX_ITERATIONS;
-	i.empty();
-
-	extent<1> e(DATA_SIZE);
-	array_view<uint32_t> a(e, i);
-	/*array_view<uint32_t, 2> a(HEIGHT, WIDTH, pImage);*/
-	a.discard_data();
-
-	try
-	{
-		parallel_for_each(a.extent.tile<TILE_SIZE>(), [=](tiled_index<TILE_SIZE> t_idx) restrict(amp)
-		{
-			//USE THREAD ID/INDEX TO MAP INTO THE COMPLEX PLANE
-			index<1> idx = t_idx.global;
-			int x = idx[0];
-			int y = idx[1];
-
-			// Work out the point in the complex plane that
-			// corresponds to this pixel in the output image.
-			Complex1 c = { left_ + (x * (right_ - left_) / wi), top_ + (y * (bottom_ - top_) / he) };
-
-			// Start off z at (0, 0).
-			Complex1 z = { 0.0, 0.0 };
-
-			// Iterate z = z^2 + c until z moves more than 2 units
-			// away from (0, 0), or we've iterated too many times.
-			int iterations = 0;
-			while (c_abs(z) < 2.0 && iterations < max_iter)
-			{
-				z = c_add(c_mul(z, z), c);
-
-				++iterations;
-			}
-
-			if (iterations == max_iter)
-			{
-				// z didn't escape from the circle.
-				// This point is in the Mandelbrot set.
-				//a[y][x] = 0x000000; // black
-				//a[idx] = 0x000000;
-			}
-			else
-			{
-				// z escaped within less than MAX_ITERATIONS
-				// iterations. This point isn't in the set.
-				//a[y][x] = 0xFFFFFF; // white
-				a[idx] = (iterations << 16) | (iterations << 8) | iterations; // grayscale
-			}
-		});
-		a.synchronize();
-	}
-	catch (const std::exception& ex)
-	{
-		MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
-	}
-}
-
+// Display text within the scene
 void Mandelbrot2::displayText(float x, float y, float r, float g, float b, char * string)
 {
 	// Get Lenth of string
@@ -536,8 +273,9 @@ void Mandelbrot2::displayText(float x, float y, float r, float g, float b, char 
 	glLoadIdentity();
 	gluPerspective(fov, ((float)window_width / (float)window_height), nearPlane, farPlane);
 	glMatrixMode(GL_MODELVIEW);
-}
+} // displayText
 
+// Render the text to the screen
 void Mandelbrot2::renderTextOutput()
 {
 	// Render current mouse position and frames per second.
@@ -569,8 +307,9 @@ void Mandelbrot2::renderTextOutput()
 	// Render red value
 	sprintf_s(redText, "Red: %i", red);
 	displayText(-1.f, 0.48f, 1.f, 1.f, 1.f, redText);
-}
+} // renderTextOutput
 
+// Calculate FPS
 void Mandelbrot2::calculateFPS()
 {
 	frame++;
@@ -581,4 +320,271 @@ void Mandelbrot2::calculateFPS()
 		timebase = time;
 		frame = 0;
 	}
-}
+} // calculateFPS
+
+// Initialise scene variables
+void Mandelbrot2::initVariables()
+{
+	MAX_ITERATIONS = 500; // 500 - starter, 10000 - beautiful
+	iteration_modifier_ = MAX_ITERATIONS;
+	recalculate = true;
+	X_Modifier_ = 0;
+	Y_Modifier_ = 0;
+	zoom_ = 1.0f;
+	movement_modifier_ = 0.005f;
+	mandelbrot_timings_file.open("amp_mandelbrot_timings.csv");
+	red = 1;
+	green = 1;
+	blue = 1;
+} // initVariables
+
+// Initialise the texture which the mandelbrot set will be rendered to
+void Mandelbrot2::initTexture()
+{
+	glGenTextures(1, &mandelbrotTexture);
+	glBindTexture(GL_TEXTURE_2D, mandelbrotTexture);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+} // initTexture
+
+// Generate a 2x2 quad and scale it to the window size
+void Mandelbrot2::generateQuad()
+{
+	glPushMatrix();
+
+	glScalef(2.5f, 2.48f, 0.0f);
+
+	glBegin(GL_QUADS);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 0.0f); // bottom right
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(1.0f, 1.0f, 0.0f); // top right
+
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(-1.0f, 1.0f, 0.0f); // top left
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, 0.0f); // bottom left
+
+	glEnd();
+
+	glPopMatrix();
+} // generateQuad
+
+// Set the WIDTH/HEIGHT the mandelbrot set will be calculated with based on key presses
+void Mandelbrot2::setResolution()
+{
+	// 640x480
+	if (input->isKeyDown('1'))
+	{
+		if (WIDTH != 640 && HEIGHT != 480)
+		{
+			WIDTH = 640;
+			HEIGHT = 480;
+			recalculate = true;
+		}
+		input->SetKeyUp('1');
+	}
+	// 960x540
+	if (input->isKeyDown('2'))
+	{
+		if (WIDTH != 960 && HEIGHT != 540)
+		{
+			WIDTH = 960;
+			HEIGHT = 540;
+			recalculate = true;
+		}
+		input->SetKeyUp('2');
+	}
+	// 1280x720
+	if (input->isKeyDown('3'))
+	{
+		if (WIDTH != 1280 && HEIGHT != 720)
+		{
+			WIDTH = 1280;
+			HEIGHT = 720;
+			recalculate = true;
+		}
+		input->SetKeyUp('3');
+	}
+	// 1920x1080
+	if (input->isKeyDown('4'))
+	{
+		if (WIDTH != 1920 && HEIGHT != 1080)
+		{
+			WIDTH = 1920;
+			HEIGHT = 1080;
+			recalculate = true;
+		}
+		input->SetKeyUp('4');
+	}
+} // setResolution
+
+// Set the movement modifier to be smaller/larger depending on zoom level
+void Mandelbrot2::alterMovementModifierByZoomLevel()
+{
+	// Set a more precise movement variable depending on zoom level
+	if (zoom_ > 0.5f)
+	{
+		movement_modifier_ = 0.05f;
+	}
+	if (zoom_ < 0.05f && zoom_ > 0.005f)
+	{
+		movement_modifier_ = 0.005f;
+	}
+	if (zoom_ < 0.005f && zoom_ > 0.00005f)
+	{
+		movement_modifier_ = 0.00005f;
+	}
+	if (zoom_ < 0.00005f)
+	{
+		movement_modifier_ = 0.000005f;
+	}
+} // alterMovementModifierByZoomLevel
+
+// Detect key presses by user to move around the mandelbrot set and recalculate upon moving
+void Mandelbrot2::userMovement()
+{
+	// move left
+	if (input->isKeyDown('a'))
+	{
+		X_Modifier_ -= movement_modifier_;
+
+		recalculate = true;
+		input->SetKeyUp('a');
+	}
+	// move right
+	if (input->isKeyDown('d'))
+	{
+		X_Modifier_ += movement_modifier_;
+		recalculate = true;
+		input->SetKeyUp('d');
+	}
+	// move up
+	if (input->isKeyDown('w'))
+	{
+		Y_Modifier_ += movement_modifier_;
+		recalculate = true;
+		input->SetKeyUp('w');
+	}
+	// move down
+	if (input->isKeyDown('s'))
+	{
+		Y_Modifier_ -= movement_modifier_;
+		recalculate = true;
+		input->SetKeyUp('s');
+	}
+} // userMovement
+
+// Detect key presses by user to alter the zoom variable and magnify/minify the mandelbrot set and recalculate
+void Mandelbrot2::userZoom()
+{
+	// zoom in
+	if (input->isKeyDown('r'))
+	{
+		zoom_ -= (zoom_ / 10);
+		recalculate = true;
+		input->SetKeyUp('r');
+	}
+	// zoom out
+	if (input->isKeyDown('f'))
+	{
+		zoom_ += (zoom_ / 10);
+		recalculate = true;
+		input->SetKeyUp('f');
+	}
+} // userZoom
+
+// Detect key presses by user to alter the MAX_ITERATIONS the mandelbrot set is calculated with
+void Mandelbrot2::setIterations()
+{
+	// increase MAX_ITERATIONS
+	if (input->isKeyDown('q'))
+	{
+		if (MAX_ITERATIONS < 10000)
+		{
+			MAX_ITERATIONS += iteration_modifier_;
+			recalculate = true;
+		}
+		input->SetKeyUp('q');
+	}
+	// decrease MAX_ITERATIONS
+	if (input->isKeyDown('e'))
+	{
+		if (MAX_ITERATIONS > 0)
+		{
+			MAX_ITERATIONS -= iteration_modifier_;
+			recalculate = true;
+		}
+		input->SetKeyUp('e');
+	}
+} // setIterations
+
+// Detect key presses by user to alter the colour the mandelbrot set is calculated with
+void Mandelbrot2::setColour()
+{
+	// increase blue
+	if (input->isKeyDown('t'))
+	{
+		if (blue < 255)
+		{
+			blue++;
+			recalculate = true;
+		}
+		input->SetKeyUp('t');
+	}
+	//decrease blue
+	if (input->isKeyDown('g'))
+	{
+		if (blue > 1)
+		{
+			blue--;
+			recalculate = true;
+		}
+		input->SetKeyUp('g');
+	}
+
+	//increase green
+	if (input->isKeyDown('y'))
+	{
+		if (green < 255)
+		{
+			green++;
+			recalculate = true;
+		}
+		input->SetKeyUp('y');
+	}
+	//decrease green
+	if (input->isKeyDown('h'))
+	{
+		if (green > 1)
+		{
+			green--;
+			recalculate = true;
+		}
+		input->SetKeyUp('h');
+	}
+
+	//increase red
+	if (input->isKeyDown('u'))
+	{
+		if (red < 255)
+		{
+			red++;
+			recalculate = true;
+		}
+		input->SetKeyUp('u');
+	}
+	//decrease red
+	if (input->isKeyDown('j'))
+	{
+		if (red > 1)
+		{
+			red--;
+			recalculate = true;
+		}
+		input->SetKeyUp('j');
+	}
+} // setColour
