@@ -48,3 +48,9 @@
 * `3` - Set: Width - 1280, Height 720.
 
 * `4` - Set: Width - 1920, Height 1080.
+
+**Set Computation(Tiled/Non-Tiled):**
+
+* `Z` - Non-Tiled.
+
+* `X` - Tiled.
