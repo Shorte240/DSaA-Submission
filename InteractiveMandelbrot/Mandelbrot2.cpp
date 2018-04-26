@@ -56,7 +56,7 @@ void Mandelbrot2::render()
 // Update the scene
 void Mandelbrot2::update(float dt)
 {
-	setResolution();
+	setWidth_Height();
 
 	alterMovementModifierByZoomLevel();
 
@@ -68,15 +68,24 @@ void Mandelbrot2::update(float dt)
 
 	setColour();
 
+	setComputation();
+
 	// update scene related variables.
 	if (recalculate)
 	{
 		// Start timing
 		the_amp_clock::time_point start = the_amp_clock::now();
 
-		//gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full
-		
-		gpu_amp_mandelbrot_tiled(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full
+		if (running_non_tiled)
+		{
+			gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
+			running_tiled = false;
+		}
+		else if (running_tiled)
+		{
+			gpu_amp_mandelbrot_tiled(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
+			running_non_tiled = false;
+		}
 
 		// Stop timing
 		the_amp_clock::time_point end = the_amp_clock::now();
@@ -84,8 +93,8 @@ void Mandelbrot2::update(float dt)
 		// Compute the difference between the two times in milliseconds
 		auto time_taken = duration_cast<milliseconds>(end - start).count();
 
-		mandelbrot_timings_file << "Resolution Width: " << "," << WIDTH << endl;
-		mandelbrot_timings_file << "Resolution Height: "  << "," << HEIGHT << endl;
+		mandelbrot_timings_file << "Width: " << "," << WIDTH << endl;
+		mandelbrot_timings_file << "Height: "  << "," << HEIGHT << endl;
 		mandelbrot_timings_file << "Max Iterations: " << "," << MAX_ITERATIONS << endl;
 		mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
 		mandelbrot_timings_file << endl;
@@ -159,9 +168,9 @@ void Mandelbrot2::list_accelerators()
 		report_accelerator(a);
 
 	}
-	//accelerator::set_default(accls[1].device_path); // set default accelerator to GPU
-	// [0] = NVIDIA GeForce 440 - Vita Lab, Intel (R) HD Graphics - 4506
-	// [1] = Microsoft Basic Render Driver - Not support limited_double_precision
+	//accelerator::set_default(accls[0].device_path); // set default accelerator to GPU
+	// [0] = Intel (R) HD Graphics - 4506
+	// [1] = Microsoft Basic Render Driver - Works but not very well
 	// [2] = Software Adaptor - Blank Screen
 	// [3] = CPU Accelerator - Not support parallel_for_each
 	accelerator acc = accelerator(accelerator::default_accelerator);
@@ -372,6 +381,10 @@ void Mandelbrot2::renderTextOutput()
 	// Render red value
 	sprintf_s(redText, "Red: %i", red);
 	displayText(-1.f, 0.48f, 1.f, 1.f, 1.f, redText);
+
+	// Render computation mode setting
+	sprintf_s(computationText, "Mode: %s", computationModeName.c_str());
+	displayText(-1.f, 0.42f, 1.f, 1.f, 1.f, computationText);
 } // renderTextOutput
 
 // Calculate FPS
@@ -393,6 +406,9 @@ void Mandelbrot2::initVariables()
 	MAX_ITERATIONS = 500; // 500 - starter, 10000 - beautiful
 	iteration_modifier_ = MAX_ITERATIONS;
 	recalculate = true;
+	running_non_tiled = true;
+	running_tiled = false;
+	computationModeName = "Non-tiled";
 	X_Modifier_ = 0;
 	Y_Modifier_ = 0;
 	zoom_ = 1.0f;
@@ -439,7 +455,7 @@ void Mandelbrot2::generateQuad()
 } // generateQuad
 
 // Set the WIDTH/HEIGHT the mandelbrot set will be calculated with based on key presses
-void Mandelbrot2::setResolution()
+void Mandelbrot2::setWidth_Height()
 {
 	// 640x480
 	if (input->isKeyDown('1'))
@@ -653,3 +669,25 @@ void Mandelbrot2::setColour()
 		input->SetKeyUp('j');
 	}
 } // setColour
+
+// Detect key presses to set whether the tiled or non-tiled computation is run
+void Mandelbrot2::setComputation()
+{
+	// run non tiled computation
+	if (input->isKeyDown('z'))
+	{
+		computationModeName = "Non-tiled";
+		running_non_tiled = true;
+		recalculate = true;
+		input->SetKeyUp('z');
+	}
+	// run tiled computation
+	if (input->isKeyDown('x'))
+	{
+		computationModeName = "Tiled";
+		running_tiled = true;
+		recalculate = true;
+		input->SetKeyUp('x');
+	}
+} // setComputation
+

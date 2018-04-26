@@ -6,7 +6,7 @@
 // define a tile size
 // max threads 1024 per tile
 // max tiles 65536 in any dimension
-#define TS 16 // 8 - 16 = better? 32+ = bad?
+#define TS 16 // 8 - 16 = better? 32 = MAX
 
 class Mandelbrot2
 {
@@ -42,7 +42,7 @@ protected:
 	// Generates a 2x2 quad and scales to window size
 	void generateQuad();
 	// Sets WIDTH/HEIGHT based on user key presses
-	void setResolution();
+	void setWidth_Height();
 	// Alters the movement modifier based upon the current value of zoom
 	void alterMovementModifierByZoomLevel();
 	// Lets the user move around the mandelbrot set based on key presses
@@ -53,6 +53,8 @@ protected:
 	void setIterations();
 	// Alters the values of the colours the mandelbrot set is calculated with based on key presses
 	void setColour();
+	// Allows the user to choose what computation to run
+	void setComputation();
 
 	// The number of times to iterate before we assume that a point isn't in the
 	// Mandelbrot set.
@@ -67,6 +69,8 @@ protected:
 	int iteration_modifier_;
 	// Boolean to check if user has modified any variables and if the mandelbrot set needs recalculated as a result
 	bool recalculate;
+	// Booleans to check if the user is running tiled or non tiled
+	bool running_non_tiled, running_tiled;
 	// 2D Array for which the mandelbrot set information is stored in
 	uint32_t image[1920][1280];
 	// Texture for which the mandelbrot set is applied to
@@ -76,6 +80,8 @@ protected:
 
 	float X_Modifier_, Y_Modifier_, zoom_, movement_modifier_;
 	int red, green, blue;
+
+	std::string computationModeName;
 
 	// For access to user input.
 	Input* input;
@@ -96,5 +102,6 @@ protected:
 	char redText[40];
 	char widthText[40];
 	char heightText[40];
+	char computationText[40];
 };
 
