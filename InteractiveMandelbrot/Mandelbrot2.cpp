@@ -79,12 +79,10 @@ void Mandelbrot2::update(float dt)
 		if (running_non_tiled)
 		{
 			gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
-			running_tiled = false;
 		}
 		else if (running_tiled)
 		{
 			gpu_amp_mandelbrot_tiled(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
-			running_non_tiled = false;
 		}
 
 		// Stop timing
@@ -529,33 +527,37 @@ void Mandelbrot2::alterMovementModifierByZoomLevel()
 void Mandelbrot2::userMovement()
 {
 	// move left
-	if (input->isKeyDown('a'))
+	if (input->isKeyDown('a') || input->isKeyDown('A'))
 	{
 		X_Modifier_ -= movement_modifier_;
 
 		recalculate = true;
 		input->SetKeyUp('a');
+		input->SetKeyUp('A');
 	}
 	// move right
-	if (input->isKeyDown('d'))
+	if (input->isKeyDown('d') || input->isKeyDown('D'))
 	{
 		X_Modifier_ += movement_modifier_;
 		recalculate = true;
 		input->SetKeyUp('d');
+		input->SetKeyUp('D');
 	}
 	// move up
-	if (input->isKeyDown('w'))
+	if (input->isKeyDown('w') || input->isKeyDown('W'))
 	{
 		Y_Modifier_ += movement_modifier_;
 		recalculate = true;
 		input->SetKeyUp('w');
+		input->SetKeyUp('W');
 	}
 	// move down
-	if (input->isKeyDown('s'))
+	if (input->isKeyDown('s') || input->isKeyDown('S'))
 	{
 		Y_Modifier_ -= movement_modifier_;
 		recalculate = true;
 		input->SetKeyUp('s');
+		input->SetKeyUp('S');
 	}
 } // userMovement
 
@@ -563,18 +565,20 @@ void Mandelbrot2::userMovement()
 void Mandelbrot2::userZoom()
 {
 	// zoom in
-	if (input->isKeyDown('r'))
+	if (input->isKeyDown('r') || input->isKeyDown('R'))
 	{
 		zoom_ -= (zoom_ / 10);
 		recalculate = true;
 		input->SetKeyUp('r');
+		input->SetKeyUp('R');
 	}
 	// zoom out
-	if (input->isKeyDown('f'))
+	if (input->isKeyDown('f') || input->isKeyDown('F'))
 	{
 		zoom_ += (zoom_ / 10);
 		recalculate = true;
 		input->SetKeyUp('f');
+		input->isKeyDown('F');
 	}
 } // userZoom
 
@@ -582,7 +586,7 @@ void Mandelbrot2::userZoom()
 void Mandelbrot2::setIterations()
 {
 	// increase MAX_ITERATIONS
-	if (input->isKeyDown('q'))
+	if (input->isKeyDown('q') || input->isKeyDown('Q'))
 	{
 		if (MAX_ITERATIONS < 10000)
 		{
@@ -590,9 +594,10 @@ void Mandelbrot2::setIterations()
 			recalculate = true;
 		}
 		input->SetKeyUp('q');
+		input->SetKeyUp('Q');
 	}
 	// decrease MAX_ITERATIONS
-	if (input->isKeyDown('e'))
+	if (input->isKeyDown('e') || input->isKeyDown('E'))
 	{
 		if (MAX_ITERATIONS > 0)
 		{
@@ -600,6 +605,7 @@ void Mandelbrot2::setIterations()
 			recalculate = true;
 		}
 		input->SetKeyUp('e');
+		input->SetKeyUp('E');
 	}
 } // setIterations
 
@@ -607,7 +613,7 @@ void Mandelbrot2::setIterations()
 void Mandelbrot2::setColour()
 {
 	// increase blue
-	if (input->isKeyDown('t'))
+	if (input->isKeyDown('t') || input->isKeyDown('T'))
 	{
 		if (blue < 255)
 		{
@@ -615,9 +621,10 @@ void Mandelbrot2::setColour()
 			recalculate = true;
 		}
 		input->SetKeyUp('t');
+		input->SetKeyUp('T');
 	}
 	//decrease blue
-	if (input->isKeyDown('g'))
+	if (input->isKeyDown('g') || input->isKeyDown('G'))
 	{
 		if (blue > 1)
 		{
@@ -625,10 +632,11 @@ void Mandelbrot2::setColour()
 			recalculate = true;
 		}
 		input->SetKeyUp('g');
+		input->SetKeyUp('G');
 	}
 
 	//increase green
-	if (input->isKeyDown('y'))
+	if (input->isKeyDown('y') || input->isKeyDown('Y'))
 	{
 		if (green < 255)
 		{
@@ -636,9 +644,10 @@ void Mandelbrot2::setColour()
 			recalculate = true;
 		}
 		input->SetKeyUp('y');
+		input->SetKeyUp('Y');
 	}
 	//decrease green
-	if (input->isKeyDown('h'))
+	if (input->isKeyDown('h') || input->isKeyDown('H'))
 	{
 		if (green > 1)
 		{
@@ -646,10 +655,11 @@ void Mandelbrot2::setColour()
 			recalculate = true;
 		}
 		input->SetKeyUp('h');
+		input->SetKeyUp('H');
 	}
 
 	//increase red
-	if (input->isKeyDown('u'))
+	if (input->isKeyDown('u') || input->isKeyDown('U'))
 	{
 		if (red < 255)
 		{
@@ -657,9 +667,10 @@ void Mandelbrot2::setColour()
 			recalculate = true;
 		}
 		input->SetKeyUp('u');
+		input->SetKeyUp('U');
 	}
 	//decrease red
-	if (input->isKeyDown('j'))
+	if (input->isKeyDown('j') || input->isKeyDown('J'))
 	{
 		if (red > 1)
 		{
@@ -667,6 +678,7 @@ void Mandelbrot2::setColour()
 			recalculate = true;
 		}
 		input->SetKeyUp('j');
+		input->SetKeyUp('J');
 	}
 } // setColour
 
@@ -674,20 +686,23 @@ void Mandelbrot2::setColour()
 void Mandelbrot2::setComputation()
 {
 	// run non tiled computation
-	if (input->isKeyDown('z'))
+	if (input->isKeyDown('z') || input->isKeyDown('Z'))
 	{
 		computationModeName = "Non-tiled";
 		running_non_tiled = true;
+		running_tiled = false;
 		recalculate = true;
 		input->SetKeyUp('z');
+		input->SetKeyUp('Z');
 	}
 	// run tiled computation
-	if (input->isKeyDown('x'))
+	if (input->isKeyDown('x') || input->isKeyDown('X'))
 	{
 		computationModeName = "Tiled";
 		running_tiled = true;
+		running_non_tiled = false;
 		recalculate = true;
 		input->SetKeyUp('x');
+		input->SetKeyUp('Z');
 	}
 } // setComputation
-

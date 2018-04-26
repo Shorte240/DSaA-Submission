@@ -81,6 +81,7 @@ protected:
 	float X_Modifier_, Y_Modifier_, zoom_, movement_modifier_;
 	int red, green, blue;
 
+	// string to ouput to screen what computation mode is running
 	std::string computationModeName;
 
 	// For access to user input.
@@ -95,13 +96,17 @@ protected:
 	char fps[40];
 	char mouseText[40];
 
+	// char arrays to output to screen
 	char iterationText[40];
 	char zoomText[40];
+
 	char blueText[40];
 	char greenText[40];
 	char redText[40];
+
 	char widthText[40];
 	char heightText[40];
+
 	char computationText[40];
 };
 
