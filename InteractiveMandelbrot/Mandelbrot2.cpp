@@ -74,9 +74,11 @@ void Mandelbrot2::update(float dt)
 		// Start timing
 		the_amp_clock::time_point start = the_amp_clock::now();
 
-		gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full
+		//gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full
+		
+		gpu_amp_mandelbrot_tiled(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full
 
-		// Stop timing																															// Stop timing
+		// Stop timing
 		the_amp_clock::time_point end = the_amp_clock::now();
 
 		// Compute the difference between the two times in milliseconds
@@ -157,7 +159,7 @@ void Mandelbrot2::list_accelerators()
 		report_accelerator(a);
 
 	}
-	//accelerator::set_default(accls[0].device_path); // set default accelerator to GPU
+	//accelerator::set_default(accls[1].device_path); // set default accelerator to GPU
 	// [0] = NVIDIA GeForce 440 - Vita Lab, Intel (R) HD Graphics - 4506
 	// [1] = Microsoft Basic Render Driver - Not support limited_double_precision
 	// [2] = Software Adaptor - Blank Screen
@@ -197,7 +199,7 @@ void Mandelbrot2::gpu_amp_mandelbrot(float left_, float right_, float top_, floa
 
 	try
 	{
-		parallel_for_each(a.extent, [=](concurrency::index<2> idx) restrict(amp)
+		parallel_for_each(a.extent, [=](index<2> idx) restrict(amp)
 		{
 			//USE THREAD ID/INDEX TO MAP INTO THE COMPLEX PLANE
 			int x = idx[1];
@@ -242,6 +244,69 @@ void Mandelbrot2::gpu_amp_mandelbrot(float left_, float right_, float top_, floa
 		MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
 	}
 } // gpu_amp_mandelbrot
+
+  // Generate mandelbrot set on GPU using amp with tiles
+void Mandelbrot2::gpu_amp_mandelbrot_tiled(float left_, float right_, float top_, float bottom_)
+{
+	unsigned max_iter = MAX_ITERATIONS;
+	unsigned w = WIDTH;
+	unsigned h = HEIGHT;
+	uint32_t *pImage = &(image[0][0]);
+	unsigned r = red;
+	unsigned g = green;
+	unsigned b = blue;
+	extent<2> e(h, w);
+	array_view<uint32_t, 2> a(e, pImage);
+	a.discard_data();
+
+	try
+	{
+		parallel_for_each(a.extent.tile<TS, TS>(), [=](tiled_index<TS,TS> t_idx) restrict(amp)
+		{
+			//USE THREAD ID/INDEX TO MAP INTO THE COMPLEX PLANE
+			index<2> idx = t_idx.global;
+			int x = t_idx.global[1];
+			int y = t_idx.global[0];
+
+			 /*Work out the point in the complex plane that
+			 corresponds to this pixel in the output image.*/
+			Complex1 c = { left_ + (x * (right_ - left_) / w), top_ + (y * (bottom_ - top_) / h) };
+
+			// Start off z at (0, 0).
+			Complex1 z = { 0.0, 0.0 };
+
+			// Iterate z = z^2 + c until z moves more than 2 units
+			// away from (0, 0), or we've iterated too many times.
+			int iterations = 0;
+			while (c_abs(z) < 2.0 && iterations < max_iter)
+			{
+				z = c_add(c_mul(z, z), c);
+
+				++iterations;
+			}
+
+			if (iterations == max_iter)
+			{
+				// z didn't escape from the circle.
+				// This point is in the Mandelbrot set.
+				a[y][x] = 0x000000; // black
+			}
+			else
+			{
+				// z escaped within less than MAX_ITERATIONS
+				// iterations. This point isn't in the set.
+				//a[y][x] = 0xFFFFFF; // white
+				a[y][x] = (b * iterations << 16) | (g * iterations << 8) | r * iterations; // grayscale
+																						   // BGR
+			}
+		});
+		a.synchronize();
+	}
+	catch (const std::exception& ex)
+	{
+		MessageBoxA(NULL, ex.what(), "Error", MB_ICONERROR);
+	}
+} // gpu_amp_mandelbrot_tiled
 
 // Display text within the scene
 void Mandelbrot2::displayText(float x, float y, float r, float g, float b, char * string)
@@ -387,35 +452,35 @@ void Mandelbrot2::setResolution()
 		}
 		input->SetKeyUp('1');
 	}
-	// 960x540
+	// 960x720
 	if (input->isKeyDown('2'))
 	{
-		if (WIDTH != 960 && HEIGHT != 540)
+		if (WIDTH != 960 && HEIGHT != 720)
 		{
 			WIDTH = 960;
-			HEIGHT = 540;
+			HEIGHT = 720;
 			recalculate = true;
 		}
 		input->SetKeyUp('2');
 	}
-	// 1280x720
+	// 1280x960
 	if (input->isKeyDown('3'))
 	{
-		if (WIDTH != 1280 && HEIGHT != 720)
+		if (WIDTH != 1280 && HEIGHT != 960)
 		{
 			WIDTH = 1280;
-			HEIGHT = 720;
+			HEIGHT = 960;
 			recalculate = true;
 		}
 		input->SetKeyUp('3');
 	}
-	// 1920x1080
+	// 1920x1280
 	if (input->isKeyDown('4'))
 	{
-		if (WIDTH != 1920 && HEIGHT != 1080)
+		if (WIDTH != 1920 && HEIGHT != 1280)
 		{
 			WIDTH = 1920;
-			HEIGHT = 1080;
+			HEIGHT = 1280;
 			recalculate = true;
 		}
 		input->SetKeyUp('4');

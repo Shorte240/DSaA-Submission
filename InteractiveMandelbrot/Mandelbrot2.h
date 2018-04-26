@@ -3,6 +3,11 @@
 // Include GLUT, openGL, input.
 #include "Includes.h"
 
+// define a tile size
+// max threads 1024 per tile
+// max tiles 65536 in any dimension
+#define TS 16 // 8 - 16 = better? 32+ = bad?
+
 class Mandelbrot2
 {
 public:
@@ -22,6 +27,8 @@ public:
 	void query_AMP_support();
 
 	void gpu_amp_mandelbrot(float left_, float right_, float top_, float bottom_);
+
+	void gpu_amp_mandelbrot_tiled(float left_, float right_, float top_, float bottom_);
 
 protected:
 	// Renders text (x, y positions, RGB colour of text, string of text to be rendered)
@@ -61,7 +68,7 @@ protected:
 	// Boolean to check if user has modified any variables and if the mandelbrot set needs recalculated as a result
 	bool recalculate;
 	// 2D Array for which the mandelbrot set information is stored in
-	uint32_t image[1920][1080];
+	uint32_t image[1920][1280];
 	// Texture for which the mandelbrot set is applied to
 	GLuint mandelbrotTexture;
 	// .CSV file for which the timings of the calculations of the mandelbrot set are saved to
