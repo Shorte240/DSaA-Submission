@@ -73,29 +73,32 @@ void Mandelbrot2::update(float dt)
 	// update scene related variables.
 	if (recalculate)
 	{
-		// Start timing
-		the_amp_clock::time_point start = the_amp_clock::now();
+		for (int i = 0; i < 1001; i++)
+		{
+			// Start timing
+			the_amp_clock::time_point start = the_amp_clock::now();
 
-		if (running_non_tiled)
-		{
-			gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
-		}
-		else if (running_tiled)
-		{
+			//if (running_non_tiled)
+			//{
+			//gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
+			//}
+			//else if (running_tiled)
+			//{
 			gpu_amp_mandelbrot_tiled(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
-		}
+		//}
 
 		// Stop timing
-		the_amp_clock::time_point end = the_amp_clock::now();
+			the_amp_clock::time_point end = the_amp_clock::now();
 
-		// Compute the difference between the two times in milliseconds
-		auto time_taken = duration_cast<milliseconds>(end - start).count();
+			// Compute the difference between the two times in milliseconds
+			auto time_taken = duration_cast<milliseconds>(end - start).count();
 
-		mandelbrot_timings_file << "Width: " << "," << WIDTH << endl;
-		mandelbrot_timings_file << "Height: "  << "," << HEIGHT << endl;
-		mandelbrot_timings_file << "Max Iterations: " << "," << MAX_ITERATIONS << endl;
-		mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
-		mandelbrot_timings_file << endl;
+			/*mandelbrot_timings_file << "Width: " << "," << WIDTH << endl;
+			mandelbrot_timings_file << "Height: "  << "," << HEIGHT << endl;
+			mandelbrot_timings_file << "Max Iterations: " << "," << MAX_ITERATIONS << endl;*/
+			mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
+			//mandelbrot_timings_file << endl; 
+		}
 
 		//gpu_amp_mandelbrot(((-0.751085f * zoom_) + X_Modifier_), ((-0.734975f *zoom_) + X_Modifier_), ((0.118378f * zoom_) + Y_Modifier_), ((0.134488f * zoom_) + Y_Modifier_)); // zoomed
 
@@ -304,7 +307,7 @@ void Mandelbrot2::gpu_amp_mandelbrot_tiled(float left_, float right_, float top_
 				// iterations. This point isn't in the set.
 				//a[y][x] = 0xFFFFFF; // white
 				a[y][x] = (b * iterations << 16) | (g * iterations << 8) | r * iterations; // grayscale
-																						   // BGR
+				// BGR
 			}
 		});
 		a.synchronize();
@@ -401,7 +404,7 @@ void Mandelbrot2::calculateFPS()
 // Initialise scene variables
 void Mandelbrot2::initVariables()
 {
-	MAX_ITERATIONS = 500; // 500 - starter, 10000 - beautiful
+	MAX_ITERATIONS = 2500; // 500 - starter, 10000 - beautiful
 	iteration_modifier_ = MAX_ITERATIONS;
 	recalculate = true;
 	running_non_tiled = true;
@@ -411,7 +414,7 @@ void Mandelbrot2::initVariables()
 	Y_Modifier_ = 0;
 	zoom_ = 1.0f;
 	movement_modifier_ = 0.005f;
-	mandelbrot_timings_file.open("amp_mandelbrot_timings.csv");
+	mandelbrot_timings_file.open("1920x1280dot2500iterations8TS.csv");
 	red = 1;
 	green = 1;
 	blue = 1;
@@ -466,13 +469,13 @@ void Mandelbrot2::setWidth_Height()
 		}
 		input->SetKeyUp('1');
 	}
-	// 960x720
+	// 960x768
 	if (input->isKeyDown('2'))
 	{
-		if (WIDTH != 960 && HEIGHT != 720)
+		if (WIDTH != 960 && HEIGHT != 768)
 		{
 			WIDTH = 960;
-			HEIGHT = 720;
+			HEIGHT = 768;
 			recalculate = true;
 		}
 		input->SetKeyUp('2');

@@ -6,7 +6,10 @@
 // define a tile size
 // max threads 1024 per tile
 // max tiles 65536 in any dimension
-#define TS 16 // 8 - 16 = better? 32 = MAX
+//#define TS 4 // 8 - 16 = better? 32 = MAX
+#define TS 8 // 8 - 16 = better? 32 = MAX
+//#define TS 16 // 8 - 16 = better? 32 = MAX
+//#define TS 32 // 8 - 16 = better? 32 = MAX
 
 class Mandelbrot2
 {
@@ -62,8 +65,8 @@ protected:
 	int MAX_ITERATIONS;
 
 	// Resolution/ Width/Height the mandelbrot set is calculated with
-	int WIDTH = 640;
-	int HEIGHT = 480;
+	int WIDTH = 1920;
+	int HEIGHT = 1280;
 	
 	// Value by which MAX_ITERATIONS is modified by based on key press
 	int iteration_modifier_;
