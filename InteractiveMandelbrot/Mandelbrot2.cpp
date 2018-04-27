@@ -46,8 +46,10 @@ void Mandelbrot2::render()
 
 	// End render geometry --------------------------------------
 
+	glDisable(GL_TEXTURE_2D);
 	// Render text, should be last object rendered.
 	renderTextOutput();
+	glEnable(GL_TEXTURE_2D);
 
 	// Swap buffers, after all objects are rendered.
 	glutSwapBuffers();
@@ -73,32 +75,29 @@ void Mandelbrot2::update(float dt)
 	// update scene related variables.
 	if (recalculate)
 	{
-		for (int i = 0; i < 1001; i++)
-		{
-			// Start timing
-			the_amp_clock::time_point start = the_amp_clock::now();
+		// Start timing
+		the_amp_clock::time_point start = the_amp_clock::now();
 
-			//if (running_non_tiled)
-			//{
-			//gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
-			//}
-			//else if (running_tiled)
-			//{
+		if (running_non_tiled)
+		{
+			gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
+		}
+		else if (running_tiled)
+		{
 			gpu_amp_mandelbrot_tiled(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
-		//}
+		}
 
 		// Stop timing
-			the_amp_clock::time_point end = the_amp_clock::now();
+		the_amp_clock::time_point end = the_amp_clock::now();
 
-			// Compute the difference between the two times in milliseconds
-			auto time_taken = duration_cast<milliseconds>(end - start).count();
+		// Compute the difference between the two times in milliseconds
+		auto time_taken = duration_cast<milliseconds>(end - start).count();
 
-			/*mandelbrot_timings_file << "Width: " << "," << WIDTH << endl;
-			mandelbrot_timings_file << "Height: "  << "," << HEIGHT << endl;
-			mandelbrot_timings_file << "Max Iterations: " << "," << MAX_ITERATIONS << endl;*/
-			mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
-			//mandelbrot_timings_file << endl; 
-		}
+		mandelbrot_timings_file << "Width: " << "," << WIDTH << endl;
+		mandelbrot_timings_file << "Height: "  << "," << HEIGHT << endl;
+		mandelbrot_timings_file << "Max Iterations: " << "," << MAX_ITERATIONS << endl;
+		mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
+		mandelbrot_timings_file << endl; 
 
 		//gpu_amp_mandelbrot(((-0.751085f * zoom_) + X_Modifier_), ((-0.734975f *zoom_) + X_Modifier_), ((0.118378f * zoom_) + Y_Modifier_), ((0.134488f * zoom_) + Y_Modifier_)); // zoomed
 
@@ -404,7 +403,7 @@ void Mandelbrot2::calculateFPS()
 // Initialise scene variables
 void Mandelbrot2::initVariables()
 {
-	MAX_ITERATIONS = 2500; // 500 - starter, 10000 - beautiful
+	MAX_ITERATIONS = 500; // 500 - starter, 10000 - beautiful
 	iteration_modifier_ = MAX_ITERATIONS;
 	recalculate = true;
 	running_non_tiled = true;
@@ -414,7 +413,7 @@ void Mandelbrot2::initVariables()
 	Y_Modifier_ = 0;
 	zoom_ = 1.0f;
 	movement_modifier_ = 0.005f;
-	mandelbrot_timings_file.open("1920x1280dot2500iterations8TS.csv");
+	mandelbrot_timings_file.open("amp_mandelbrot_timings.csv");
 	red = 1;
 	green = 1;
 	blue = 1;
@@ -428,6 +427,46 @@ void Mandelbrot2::initTexture()
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 } // initTexture
+
+// Record the time it takes to compute the mandelbrot set without tiling
+void Mandelbrot2::timeNonTiled()
+{
+	for (int i = 0; i < 1001; i++)
+	{
+		// Start timing
+		the_amp_clock::time_point start = the_amp_clock::now();
+
+		gpu_amp_mandelbrot(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
+
+																																									   // Stop timing
+		the_amp_clock::time_point end = the_amp_clock::now();
+
+		// Compute the difference between the two times in milliseconds
+		auto time_taken = duration_cast<milliseconds>(end - start).count();
+
+		mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
+	}
+} // timeNonTiled
+
+  // Record the time it takes to compute the mandelbrot set with tiling
+void Mandelbrot2::timeTiled()
+{
+	for (int i = 0; i < 1001; i++)
+	{
+		// Start timing
+		the_amp_clock::time_point start = the_amp_clock::now();
+
+		gpu_amp_mandelbrot_tiled(((-2.0f * zoom_) + X_Modifier_), ((1.0f *zoom_) + X_Modifier_), ((1.125f * zoom_) + Y_Modifier_), ((-1.125f * zoom_) + Y_Modifier_)); // full set
+		
+		// Stop timing
+		the_amp_clock::time_point end = the_amp_clock::now();
+
+		// Compute the difference between the two times in milliseconds
+		auto time_taken = duration_cast<milliseconds>(end - start).count();
+
+		mandelbrot_timings_file << "Time taken: " << "," << time_taken << endl;
+	}
+} // timeTiled
 
 // Generate a 2x2 quad and scale it to the window size
 void Mandelbrot2::generateQuad()

@@ -42,6 +42,9 @@ protected:
 	// Initialise variables and texture
 	void initVariables();
 	void initTexture();
+	// functions to time the mandelbrot set at various settings
+	void timeNonTiled();
+	void timeTiled();
 	// Generates a 2x2 quad and scales to window size
 	void generateQuad();
 	// Sets WIDTH/HEIGHT based on user key presses
@@ -65,8 +68,8 @@ protected:
 	int MAX_ITERATIONS;
 
 	// Resolution/ Width/Height the mandelbrot set is calculated with
-	int WIDTH = 1920;
-	int HEIGHT = 1280;
+	int WIDTH = 640;
+	int HEIGHT = 480;
 	
 	// Value by which MAX_ITERATIONS is modified by based on key press
 	int iteration_modifier_;
