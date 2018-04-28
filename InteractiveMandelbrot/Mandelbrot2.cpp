@@ -630,7 +630,7 @@ void Mandelbrot2::setIterations()
 	// increase MAX_ITERATIONS
 	if (input->isKeyDown('q') || input->isKeyDown('Q'))
 	{
-		if (MAX_ITERATIONS < 10000)
+		if (MAX_ITERATIONS < 5000)
 		{
 			MAX_ITERATIONS += iteration_modifier_;
 			recalculate = true;

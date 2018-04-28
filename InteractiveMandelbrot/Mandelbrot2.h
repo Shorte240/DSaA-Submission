@@ -6,10 +6,11 @@
 // define a tile size
 // max threads 1024 per tile
 // max tiles 65536 in any dimension
-//#define TS 4 // 8 - 16 = better? 32 = MAX
-#define TS 8 // 8 - 16 = better? 32 = MAX
-//#define TS 16 // 8 - 16 = better? 32 = MAX
-//#define TS 32 // 8 - 16 = better? 32 = MAX
+// 32 = MAX
+#define TS 4
+//#define TS 8
+//#define TS 16
+//#define TS 32
 
 class Mandelbrot2
 {

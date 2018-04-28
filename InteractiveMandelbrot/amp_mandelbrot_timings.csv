@@ -1,260 +1,605 @@
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,43
+Time taken: ,45
 
 Width: ,640
 Height: ,480
-Max Iterations: ,500
-Time taken: ,23
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,23
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,22
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,22
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,21
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,21
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,21
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,21
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,20
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,21
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,24
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,23
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,21
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,25
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,25
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,26
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,26
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,26
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,27
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,28
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,30
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,27
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,24
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,22
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,21
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,26
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
-Time taken: ,32
-
-Width: ,640
-Height: ,480
-Max Iterations: ,500
+Max Iterations: ,1000
 Time taken: ,38
 
 Width: ,640
 Height: ,480
-Max Iterations: ,500
-Time taken: ,43
+Max Iterations: ,1500
+Time taken: ,53
+
+Width: ,640
+Height: ,480
+Max Iterations: ,2000
+Time taken: ,69
+
+Width: ,640
+Height: ,480
+Max Iterations: ,2500
+Time taken: ,85
+
+Width: ,640
+Height: ,480
+Max Iterations: ,3000
+Time taken: ,100
+
+Width: ,640
+Height: ,480
+Max Iterations: ,3500
+Time taken: ,116
+
+Width: ,640
+Height: ,480
+Max Iterations: ,4000
+Time taken: ,130
+
+Width: ,640
+Height: ,480
+Max Iterations: ,4500
+Time taken: ,146
+
+Width: ,640
+Height: ,480
+Max Iterations: ,5000
+Time taken: ,160
+
+Width: ,640
+Height: ,480
+Max Iterations: ,4500
+Time taken: ,146
+
+Width: ,640
+Height: ,480
+Max Iterations: ,4000
+Time taken: ,131
+
+Width: ,640
+Height: ,480
+Max Iterations: ,3500
+Time taken: ,115
+
+Width: ,640
+Height: ,480
+Max Iterations: ,3000
+Time taken: ,100
+
+Width: ,640
+Height: ,480
+Max Iterations: ,2500
+Time taken: ,84
+
+Width: ,640
+Height: ,480
+Max Iterations: ,2000
+Time taken: ,68
+
+Width: ,640
+Height: ,480
+Max Iterations: ,1500
+Time taken: ,53
+
+Width: ,640
+Height: ,480
+Max Iterations: ,1000
+Time taken: ,37
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,48
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,6
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,5
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,6
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,5
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,5
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,5
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,3
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,2
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,4
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,2
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,2
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,3
+
+Width: ,640
+Height: ,480
+Max Iterations: ,0
+Time taken: ,3
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,50
+Time taken: ,23
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,51
+Time taken: ,22
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,52
+Time taken: ,22
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,52
+Time taken: ,22
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,47
+Time taken: ,23
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,40
+Time taken: ,22
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,47
+Time taken: ,22
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,46
+Time taken: ,22
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,47
+Time taken: ,23
 
 Width: ,640
 Height: ,480
 Max Iterations: ,500
-Time taken: ,46
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,19
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,23
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,20
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,22
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,19
+
+Width: ,640
+Height: ,480
+Max Iterations: ,500
+Time taken: ,21
 
